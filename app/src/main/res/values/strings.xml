@@ -2,4 +2,5 @@
     <string name="app_name">Minibus</string>
     <string name="from_text">Откуда</string>
     <string name="where_text">Куда</string>
+    <string name="configuration_route">search</string>
 </resources>
