@@ -18,6 +18,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -29,6 +30,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import com.example.minibus.R
 
 import com.example.minibus.ui.theme.MinibusTheme
+import com.example.minibus.vm.OrderViewModel
 
 
 @Composable
@@ -52,57 +56,23 @@ fun RouteConfigurationScreen() {
 
             )
         ) {
-            Button(
-                onClick = { /*TODO*/ },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(72.dp),
+
+            //fromButton_1
+            DirectionButton(
                 shape = MaterialTheme.shapes.large,
-                elevation = ButtonDefaults.buttonElevation(6.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary,
-                    contentColor = MaterialTheme.colorScheme.secondaryContainer
-                )
-            ) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Top,
-                    horizontalAlignment = Alignment.Start,
-                ) {
-                    Text(
-                        text = stringResource(R.string.from_text),
-                        modifier = Modifier,
-                    )
-                }
-            }
+                text = stringResource(R.string.from_text),
+                changeDirection = {})
 
             Divider(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Button(
-                onClick = { /*TODO*/ },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(72.dp),
+            //whereButton_2
+            DirectionButton(
                 shape = MaterialTheme.shapes.small,
-                elevation = ButtonDefaults.buttonElevation(6.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary,
-                    contentColor = MaterialTheme.colorScheme.secondaryContainer
-                )
-            ) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Top,
-                    horizontalAlignment = Alignment.Start,
-                ) {
-                    Text(
-                        text = stringResource(R.string.where_text),
-                        modifier = Modifier,
-                    )
-                }
-            }
+                text = stringResource(R.string.where_text),
+                changeDirection = {})
+
 
             Row(
                 modifier = Modifier
@@ -114,31 +84,17 @@ fun RouteConfigurationScreen() {
                     )
             ) {
 
-                Button(
-                    onClick = {},
+                //ChangeDateButton
+                TripOptionsButton(
                     modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight(),
+                        .fillMaxHeight()
+                        .weight(1f),
                     shape = MaterialTheme.shapes.extraSmall,
-                    elevation = ButtonDefaults.buttonElevation(6.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.secondary,
-                        contentColor = MaterialTheme.colorScheme.secondaryContainer
-                    )
-                ) {
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        Text(
-                            text = stringResource(R.string.where_text),
-                            modifier = Modifier,
-                        )
-
-                        Row(modifier = Modifier.fillMaxWidth()) {
-                            Text(text = "25 september")
-                            Spacer(modifier = Modifier.weight(1f))
-                            Image(imageVector = Icons.Filled.DateRange, contentDescription = "")
-                        }
-                    }
-                }
+                    title = "*",
+                    text = "25 september",
+                    imageVector = Icons.Filled.DateRange,
+                    changeTipOption = {}
+                )
 
                 Divider(
                     modifier = Modifier
@@ -146,31 +102,17 @@ fun RouteConfigurationScreen() {
                         .width(1.dp)
                 )
 
-                Button(
-                    onClick = {},
+                //AddPassengersButton
+                TripOptionsButton(
                     modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight(),
+                        .fillMaxHeight()
+                        .weight(1f),
                     shape = MaterialTheme.shapes.extraLarge,
-                    elevation = ButtonDefaults.buttonElevation(6.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.secondary,
-                        contentColor = MaterialTheme.colorScheme.secondaryContainer
-                    )
-                ) {
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        Text(
-                            text = stringResource(R.string.where_text),
-                            modifier = Modifier,
-                        )
-
-                        Row(modifier = Modifier.fillMaxWidth()) {
-                            Text(text = "25 september")
-                            Spacer(modifier = Modifier.weight(1f))
-                            Image(imageVector = Icons.Filled.Person, contentDescription = "")
-                        }
-                    }
-                }
+                    title = stringResource(R.string.where_text),
+                    text = "25 september",
+                    imageVector = Icons.Filled.Person,
+                    changeTipOption = {}
+                )
             }
 
             // add checkedValue in viewModel.uiState
@@ -182,7 +124,7 @@ fun RouteConfigurationScreen() {
                 Text("Отправить посылку")
             }
 
-            Button(
+            ElevatedButton(
                 onClick = { /*TODO*/ }, modifier = Modifier
                     .fillMaxWidth()
                     .height(68.dp),
@@ -193,6 +135,70 @@ fun RouteConfigurationScreen() {
         }
 
     }
+}
+
+
+@Composable
+fun DirectionButton(shape: Shape, text: String, changeDirection: () -> Unit) {
+    ElevatedButton(
+        onClick = changeDirection,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(72.dp),
+        shape = shape,
+        elevation = ButtonDefaults.buttonElevation(6.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.secondary,
+            contentColor = MaterialTheme.colorScheme.secondaryContainer
+        )
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.Start,
+        ) {
+            Text(
+                text = text,
+                modifier = Modifier,
+            )
+        }
+    }
+}
+
+
+@Composable
+fun TripOptionsButton(
+    modifier: Modifier,
+    shape: Shape,
+    text: String,
+    title: String,
+    imageVector: ImageVector,
+    changeTipOption: () -> Unit
+) {
+    Button(
+        onClick = changeTipOption,
+        modifier = modifier,
+        shape = shape,
+        elevation = ButtonDefaults.buttonElevation(6.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.secondary,
+            contentColor = MaterialTheme.colorScheme.secondaryContainer
+        )
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Text(
+                text = title,
+                modifier = Modifier,
+            )
+
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Text(text = text)
+                Spacer(modifier = Modifier.weight(1f))
+                Image(imageVector = imageVector, contentDescription = "")
+            }
+        }
+    }
+
 }
 
 @Composable

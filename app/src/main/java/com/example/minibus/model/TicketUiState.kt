@@ -1,10 +1,10 @@
 package com.example.minibus.model
 
-import java.util.Date
+import java.time.LocalDate
 
 data class TicketUiState (
     val numberAdultsSeats: Int = 0,
     val numberChildrenSeats: Int = 0,
-    val departureDate: Date = Date(),
+    var departureDate: LocalDate = LocalDate.now(),
     val departureCity: String = ""
 )

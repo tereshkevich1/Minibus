@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.minibus"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"
@@ -47,7 +47,11 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+
 }
+
+
 
 dependencies {
 
@@ -60,9 +64,12 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
 
-    implementation ("androidx.compose.material:material:1.5.1")
+    implementation("androidx.compose.material:material:1.5.1")
     implementation("androidx.navigation:navigation-compose:2.7.3")
-    
+
+
+    implementation("com.maxkeppeler.sheets-compose-dialogs:core:1.2.0")
+    implementation("com.maxkeppeler.sheets-compose-dialogs:calendar:1.2.0")
 
 
 
