@@ -2,7 +2,6 @@ package com.example.minibus.screens
 
 
 import androidx.compose.foundation.layout.Arrangement
-
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,32 +17,41 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.minibus.R
 import com.example.minibus.ui.theme.MinibusTheme
 import com.example.minibus.vm.OrderViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LocationSearchScreen(cities: List<String>) {
-    val viewModel: OrderViewModel = viewModel()
-    //val uiState = viewModel.uiState.collectAsState()
+fun LocationSearchScreen(
+    cities: List<String>, viewModel: OrderViewModel, navController: NavController,
+    departure: Boolean
+) {
     Scaffold(topBar = { LocationSearchBar() }) { innerPadding ->
 
         LazyColumn(modifier = Modifier.padding(innerPadding)) {
             items(cities) { item ->
-                CityItem(city = item) { viewModel.setDepartureCity(item) }
+                CityItem(city = item, setCityClick = {
+                    if (departure) {
+                        viewModel.setDepartureCity(item)
+                        navController.popBackStack()
+                    } else {
+                        viewModel.setArrivalCity(item)
+                        navController.popBackStack()
+                    }
+                })
             }
         }
     }
@@ -58,7 +66,11 @@ fun LocationSearchBar() {
                 value = "", onValueChange = {},
                 singleLine = true,
                 label = { Text(stringResource(R.string.search_state)) },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedContainerColor = MaterialTheme.colorScheme.surface
+                )
             )
         },
         navigationIcon = {
@@ -69,8 +81,8 @@ fun LocationSearchBar() {
                 )
             }
         },
-        colors = TopAppBarDefaults.largeTopAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-    )
+
+        )
 }
 
 @Composable
@@ -79,14 +91,22 @@ fun CityItem(city: String, setCityClick: () -> Unit) {
         onClick = setCityClick,
         modifier = Modifier.fillMaxWidth(),
         shape = RectangleShape,
-        elevation = ButtonDefaults.elevatedButtonElevation(4.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        )
     ) {
         Row(
             modifier = Modifier.fillMaxSize(),
             horizontalArrangement = Arrangement.Start
         ) {
-            Text(text = city, modifier = Modifier.padding(dimensionResource(R.dimen.padding_small)))
+            Text(
+                text = city, modifier = Modifier.padding(
+                    start = dimensionResource(R.dimen.padding_small), top = dimensionResource(
+                        id = R.dimen.padding_small
+                    ), bottom = dimensionResource(id = R.dimen.padding_small)
+                )
+            )
         }
     }
 }
@@ -101,6 +121,7 @@ fun StateItemPreview() {
 @Preview
 fun LocationSearchScreenDarkPreview() {
     MinibusTheme(useDarkTheme = true) {
+        val viewModel: OrderViewModel = viewModel()
         val cities = listOf(
             "Минск",
             "Москва",
@@ -122,13 +143,14 @@ fun LocationSearchScreenDarkPreview() {
             "Лиссабон",
             "Афины"
         )
-        LocationSearchScreen(cities)
+        LocationSearchScreen(cities, viewModel, rememberNavController(), true)
     }
 }
 
 @Composable
 @Preview
 fun LocationSearchScreenLightPreview() {
+    val viewModel: OrderViewModel = viewModel()
     MinibusTheme(useDarkTheme = false) {
         val cities = listOf(
             "Минск",
@@ -151,7 +173,7 @@ fun LocationSearchScreenLightPreview() {
             "Лиссабон",
             "Афины"
         )
-        LocationSearchScreen(cities)
+        LocationSearchScreen(cities, viewModel, rememberNavController(), false)
     }
 }
 

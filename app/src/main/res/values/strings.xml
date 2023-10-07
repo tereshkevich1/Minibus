@@ -6,4 +6,17 @@
     <string name="adult_passenger">Взрослый</string>
     <string name="continue_name">Продолжить</string>
     <string name="search_state">Найти город</string>
+    <string name="user_first_name">Имя</string>
+    <string name="user_last_name">Фамилия</string>
+    <string name="user_phone_number">Телефон</string>
+    <string name="input_first_name">Введите имя</string>
+    <string name="input_last_name">Введите фамилию</string>
+    <string name="input_phone_number">Введите номер телефона</string>
+    <string name="save_text">Сохранить</string>
+    <string name="search">Поиск</string>
+    <string name="story">История</string>
+    <string name="profile">Профиль</string>
+    <string name="contacts">Контакты</string>
+    <string name="passengers">Пассажиры</string>
+    <string name="date">Дата</string>
 </resources>

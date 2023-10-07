@@ -57,4 +57,8 @@ class OrderViewModel : ViewModel() {
     fun setDepartureCity(departureCity: String) {
         _uiState.update { currentState -> currentState.copy(departureCity = departureCity) }
     }
+
+    fun setArrivalCity(arrivalCity: String) {
+        _uiState.update { currentState -> currentState.copy(arrivalCity = arrivalCity) }
+    }
 }

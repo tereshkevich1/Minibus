@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,37 +27,40 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.minibus.R
+import com.example.minibus.model.TicketUiState
 import com.example.minibus.ui.theme.MinibusTheme
 import com.example.minibus.vm.OrderViewModel
 
 @Composable
-fun AddPassengersScreen() {
-    val viewModel: OrderViewModel = viewModel()
-    val uiState = viewModel.uiState.collectAsState()
+fun AddPassengersScreen(viewModel: OrderViewModel, uiState: State<TicketUiState>) {
 
-    Column(modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_medium))) {
-        AddLine(
-            text = stringResource(id = R.string.adult_passenger),
-            numberSeats = uiState.value.numberAdultsSeats.toString(),
-            increaseNumberSeats = { viewModel.increaseNumberAdultsSeats() },
-            decreaseNumberSeats = { viewModel.decreaseNumberAdultsSeats() }
-        )
-        AddLine(
-            text = stringResource(id = R.string.adult_passenger),
-            numberSeats = uiState.value.numberChildrenSeats.toString(),
-            increaseNumberSeats = { viewModel.increaseNumberChildrenSeats() },
-            decreaseNumberSeats = { viewModel.decreaseNumberChildrenSeats() }
-        )
+    Surface(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Column(modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_medium))) {
+            AddLine(
+                text = stringResource(id = R.string.adult_passenger),
+                numberSeats = uiState.value.numberAdultsSeats.toString(),
+                increaseNumberSeats = { viewModel.increaseNumberAdultsSeats() },
+                decreaseNumberSeats = { viewModel.decreaseNumberAdultsSeats() }
+            )
+            AddLine(
+                text = stringResource(id = R.string.adult_passenger),
+                numberSeats = uiState.value.numberChildrenSeats.toString(),
+                increaseNumberSeats = { viewModel.increaseNumberChildrenSeats() },
+                decreaseNumberSeats = { viewModel.decreaseNumberChildrenSeats() }
+            )
 
-        Spacer(modifier = Modifier.weight(1f))
-        Button(
-            onClick = { /*TODO*/ }, modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-        ) {
-            Text(text = stringResource(R.string.continue_name))
+            Spacer(modifier = Modifier.weight(1f))
+            ElevatedButton(
+                onClick = { /*TODO*/ }, modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+            ) {
+                Text(text = stringResource(R.string.continue_name))
+            }
+
         }
-
     }
 }
 
@@ -102,9 +106,11 @@ fun AddLine(
 @Preview
 fun AddPassengersScreenDarkPreview() {
     MinibusTheme(useDarkTheme = true) {
-        Surface(modifier = Modifier.fillMaxSize()) {
-            AddPassengersScreen()
-        }
+
+            val viewModel: OrderViewModel = viewModel()
+            val uiState = viewModel.uiState.collectAsState()
+            AddPassengersScreen(viewModel = viewModel, uiState = uiState)
+
 
     }
 }
@@ -113,9 +119,9 @@ fun AddPassengersScreenDarkPreview() {
 @Preview
 fun AddPassengersScreenLightPreview() {
     MinibusTheme(useDarkTheme = false) {
-        Surface(modifier = Modifier.fillMaxSize()) {
-            AddPassengersScreen()
-        }
+            val viewModel: OrderViewModel = viewModel()
+            val uiState = viewModel.uiState.collectAsState()
+            AddPassengersScreen(viewModel = viewModel, uiState = uiState)
 
     }
 }
