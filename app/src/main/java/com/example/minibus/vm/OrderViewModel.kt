@@ -1,7 +1,7 @@
 package com.example.minibus.vm
 
 import androidx.lifecycle.ViewModel
-import com.example.minibus.model.TicketUiState
+import com.example.minibus.state_models.TicketUiState
 import com.maxkeppeker.sheets.core.models.base.UseCaseState
 import com.maxkeppeler.sheets.calendar.models.CalendarSelection
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +27,6 @@ class OrderViewModel : ViewModel() {
     }
     //_
 
-
     // 4fun for AddPassengersScreen
     fun increaseNumberAdultsSeats() {
         val updatedNumber = uiState.value.numberAdultsSeats.plus(1)
@@ -36,7 +35,7 @@ class OrderViewModel : ViewModel() {
 
     fun decreaseNumberAdultsSeats() {
         val updatedNumber = uiState.value.numberAdultsSeats.minus(1)
-        if (updatedNumber >= 0) {
+        if (updatedNumber >= 1) {
             _uiState.update { currentState -> currentState.copy(numberAdultsSeats = updatedNumber) }
         }
     }
@@ -61,4 +60,5 @@ class OrderViewModel : ViewModel() {
     fun setArrivalCity(arrivalCity: String) {
         _uiState.update { currentState -> currentState.copy(arrivalCity = arrivalCity) }
     }
+
 }

@@ -1,4 +1,4 @@
-package com.example.minibus.model
+package com.example.minibus.state_models
 
 import java.time.LocalDate
 

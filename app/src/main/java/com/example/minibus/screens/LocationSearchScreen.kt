@@ -2,12 +2,15 @@ package com.example.minibus.screens
 
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -20,39 +23,56 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.minibus.R
 import com.example.minibus.ui.theme.MinibusTheme
+import com.example.minibus.vm.LocationViewModel
 import com.example.minibus.vm.OrderViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LocationSearchScreen(
-    cities: List<String>, viewModel: OrderViewModel, navController: NavController,
+    viewModel: OrderViewModel, navController: NavController,
     departure: Boolean
 ) {
-    Scaffold(topBar = { LocationSearchBar() }) { innerPadding ->
+    val locationViewModel: LocationViewModel = viewModel()
+    val cities = locationViewModel.getData()
+    val isLoading by rememberUpdatedState(locationViewModel.isLoading)
 
-        LazyColumn(modifier = Modifier.padding(innerPadding)) {
-            items(cities) { item ->
-                CityItem(city = item, setCityClick = {
-                    if (departure) {
-                        viewModel.setDepartureCity(item)
-                        navController.popBackStack()
-                    } else {
-                        viewModel.setArrivalCity(item)
-                        navController.popBackStack()
-                    }
-                })
+
+    Scaffold(topBar = { LocationSearchBar() }) { innerPadding ->
+        if (!isLoading) {
+            LazyColumn(modifier = Modifier.padding(innerPadding)) {
+                items(cities) { item ->
+                    CityItem(city = item.name, setCityClick = {
+                        if (departure) {
+                            viewModel.setDepartureCity(item.name)
+                            navController.popBackStack()
+                        } else {
+                            viewModel.setArrivalCity(item.name)
+                            navController.popBackStack()
+                        }
+                    })
+                }
             }
+        } else {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+                CircularProgressIndicator(modifier = Modifier.size(44.dp))
+            }
+
         }
     }
 }
@@ -122,28 +142,7 @@ fun StateItemPreview() {
 fun LocationSearchScreenDarkPreview() {
     MinibusTheme(useDarkTheme = true) {
         val viewModel: OrderViewModel = viewModel()
-        val cities = listOf(
-            "Минск",
-            "Москва",
-            "Лондон",
-            "Париж",
-            "Берлин",
-            "Рим",
-            "Мадрид",
-            "Амстердам",
-            "Вена",
-            "Прага",
-            "Будапешт",
-            "Варшава",
-            "Стокгольм",
-            "Осло",
-            "Копенгаген",
-            "Хельсинки",
-            "Дублин",
-            "Лиссабон",
-            "Афины"
-        )
-        LocationSearchScreen(cities, viewModel, rememberNavController(), true)
+        LocationSearchScreen( viewModel, rememberNavController(), true)
     }
 }
 
@@ -152,28 +151,7 @@ fun LocationSearchScreenDarkPreview() {
 fun LocationSearchScreenLightPreview() {
     val viewModel: OrderViewModel = viewModel()
     MinibusTheme(useDarkTheme = false) {
-        val cities = listOf(
-            "Минск",
-            "Москва",
-            "Лондон",
-            "Париж",
-            "Берлин",
-            "Рим",
-            "Мадрид",
-            "Амстердам",
-            "Вена",
-            "Прага",
-            "Будапешт",
-            "Варшава",
-            "Стокгольм",
-            "Осло",
-            "Копенгаген",
-            "Хельсинки",
-            "Дублин",
-            "Лиссабон",
-            "Афины"
-        )
-        LocationSearchScreen(cities, viewModel, rememberNavController(), false)
+        LocationSearchScreen(viewModel, rememberNavController(), false)
     }
 }
 

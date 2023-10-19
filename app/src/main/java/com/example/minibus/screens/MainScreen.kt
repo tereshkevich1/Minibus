@@ -33,8 +33,12 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
-import com.example.minibus.model.TicketUiState
+
+import com.example.minibus.state_models.TicketUiState
 import com.example.minibus.vm.OrderViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 sealed class BottomNavigationScreen(
     val route: String,
@@ -168,53 +172,15 @@ private fun NavGraphBuilder.routeConfigurationGraph(
             )
         }
         composable("selectionArrival") {
+
+
             LocationSearchScreen(
-                cities = listOf(
-                    "Минск",
-                    "Москва",
-                    "Лондон",
-                    "Париж",
-                    "Берлин",
-                    "Рим",
-                    "Мадрид",
-                    "Амстердам",
-                    "Вена",
-                    "Прага",
-                    "Будапешт",
-                    "Варшава",
-                    "Стокгольм",
-                    "Осло",
-                    "Копенгаген",
-                    "Хельсинки",
-                    "Дублин",
-                    "Лиссабон",
-                    "Афины"
-                ), viewModel ,navController, departure = false
+                viewModel, navController, departure = false
             )
         }
         composable("selectionDeparture") {
             LocationSearchScreen(
-                cities = listOf(
-                    "Минск",
-                    "Москва",
-                    "Лондон",
-                    "Париж",
-                    "Берлин",
-                    "Рим",
-                    "Мадрид",
-                    "Амстердам",
-                    "Вена",
-                    "Прага",
-                    "Будапешт",
-                    "Варшава",
-                    "Стокгольм",
-                    "Осло",
-                    "Копенгаген",
-                    "Хельсинки",
-                    "Дублин",
-                    "Лиссабон",
-                    "Афины"
-                ), viewModel, navController, departure = true
+                viewModel, navController, departure = true
             )
         }
     }
