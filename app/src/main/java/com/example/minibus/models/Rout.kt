@@ -3,10 +3,9 @@ package com.example.minibus.models
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Rout(
+data class RoutD(
     val id: Int,
-    val startingLocation: String,
-    val finalLocation: String,
-    val distance: Int,
+    val startingLocation: Int,
+    val finalLocation: Int,
     val duration: Int
 )

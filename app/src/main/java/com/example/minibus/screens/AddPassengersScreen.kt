@@ -26,13 +26,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.minibus.R
 import com.example.minibus.state_models.TicketUiState
 import com.example.minibus.ui.theme.MinibusTheme
 import com.example.minibus.vm.OrderViewModel
 
 @Composable
-fun AddPassengersScreen(viewModel: OrderViewModel, uiState: State<TicketUiState>) {
+fun AddPassengersScreen(viewModel: OrderViewModel, uiState: State<TicketUiState>, navController: NavController) {
 
     Surface(
         modifier = Modifier.fillMaxSize()
@@ -53,7 +55,7 @@ fun AddPassengersScreen(viewModel: OrderViewModel, uiState: State<TicketUiState>
 
             Spacer(modifier = Modifier.weight(1f))
             ElevatedButton(
-                onClick = { /*TODO*/ }, modifier = Modifier
+                onClick = { navController.popBackStack() }, modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
             ) {
@@ -109,7 +111,7 @@ fun AddPassengersScreenDarkPreview() {
 
             val viewModel: OrderViewModel = viewModel()
             val uiState = viewModel.uiState.collectAsState()
-            AddPassengersScreen(viewModel = viewModel, uiState = uiState)
+            AddPassengersScreen(viewModel = viewModel, uiState = uiState,rememberNavController())
 
 
     }
@@ -121,7 +123,7 @@ fun AddPassengersScreenLightPreview() {
     MinibusTheme(useDarkTheme = false) {
             val viewModel: OrderViewModel = viewModel()
             val uiState = viewModel.uiState.collectAsState()
-            AddPassengersScreen(viewModel = viewModel, uiState = uiState)
+            AddPassengersScreen(viewModel = viewModel, uiState = uiState, rememberNavController())
 
     }
 }

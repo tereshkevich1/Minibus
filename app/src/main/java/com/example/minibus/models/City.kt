@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.example.marsphotos.model
+package com.example.minibus.models
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**

@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.marsphotos.model.City
+import com.example.minibus.models.City
 import com.example.minibus.network.MinibusApi
 import kotlinx.coroutines.launch
 

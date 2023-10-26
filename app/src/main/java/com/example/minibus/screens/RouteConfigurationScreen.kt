@@ -56,6 +56,7 @@ fun RouteConfigurationScreen(
     onShowCalendarClick: () -> Unit,
     onDepartureSelectionClick: () -> Unit,
     onArrivalSelectionClick: () -> Unit,
+    onFindTripsClick: () -> Unit,
     state: UseCaseState,
     selection: CalendarSelection,
     dateText: String,
@@ -151,7 +152,7 @@ fun RouteConfigurationScreen(
             }
 
             ElevatedButton(
-                onClick = { /*TODO*/ }, modifier = Modifier
+                onClick = { onFindTripsClick() }, modifier = Modifier
                     .fillMaxWidth()
                     .height(68.dp),
                 elevation = ButtonDefaults.buttonElevation(6.dp)
@@ -250,6 +251,7 @@ fun RouteConfigurationScreenLightThemePreview() {
                 onShowCalendarClick = { viewModel.showCalendar() },
                 onDepartureSelectionClick = {},
                 onArrivalSelectionClick = {},
+                onFindTripsClick = {},
                 selection = viewModel.calendarSelection,
                 state = viewModel.calendarState,
                 dateText = uiState.value.departureDate.toString(),
@@ -275,6 +277,7 @@ fun RouteConfigurationScreenDarkThemePreview() {
                 onShowCalendarClick = { viewModel.showCalendar() },
                 onDepartureSelectionClick = {},
                 onArrivalSelectionClick = {},
+                onFindTripsClick = {},
                 selection = viewModel.calendarSelection,
                 state = viewModel.calendarState,
                 dateText = uiState.value.departureDate.toString(),

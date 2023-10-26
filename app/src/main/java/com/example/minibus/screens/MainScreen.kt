@@ -2,14 +2,6 @@ package com.example.minibus.screens
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.example.minibus.R
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.ContentAlpha
@@ -17,13 +9,17 @@ import androidx.compose.material.Icon
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -31,14 +27,14 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
-
+import androidx.navigation.compose.rememberNavController
+import com.example.minibus.R
 import com.example.minibus.state_models.TicketUiState
 import com.example.minibus.vm.OrderViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 sealed class BottomNavigationScreen(
     val route: String,
@@ -156,6 +152,7 @@ private fun NavGraphBuilder.routeConfigurationGraph(
                 onStartAddPassengerClicked = { navController.navigate("addPassengers") },
                 onDepartureSelectionClick = { navController.navigate("selectionDeparture") },
                 onArrivalSelectionClick = { navController.navigate("selectionArrival") },
+                onFindTripsClick = { navController.navigate("resultSearchScreen") },
                 onShowCalendarClick = { viewModel.showCalendar() },
                 selection = viewModel.calendarSelection,
                 state = viewModel.calendarState,
@@ -167,8 +164,9 @@ private fun NavGraphBuilder.routeConfigurationGraph(
         }
         composable("addPassengers") {
             AddPassengersScreen(
-                viewModel = viewModel,
-                uiState = uiState
+                viewModel,
+                uiState,
+                navController
             )
         }
         composable("selectionArrival") {
@@ -182,6 +180,9 @@ private fun NavGraphBuilder.routeConfigurationGraph(
             LocationSearchScreen(
                 viewModel, navController, departure = true
             )
+        }
+        composable("resultSearchScreen") {
+            ResultSearchScreen(uiState)
         }
     }
 }

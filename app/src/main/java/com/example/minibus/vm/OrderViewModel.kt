@@ -1,6 +1,7 @@
 package com.example.minibus.vm
 
 import androidx.lifecycle.ViewModel
+import com.example.minibus.models.City
 import com.example.minibus.state_models.TicketUiState
 import com.maxkeppeker.sheets.core.models.base.UseCaseState
 import com.maxkeppeler.sheets.calendar.models.CalendarSelection
@@ -53,12 +54,22 @@ class OrderViewModel : ViewModel() {
     }
     //_
 
-    fun setDepartureCity(departureCity: String) {
-        _uiState.update { currentState -> currentState.copy(departureCity = departureCity) }
+    fun setDepartureCity(departureCity: City) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                departureCity = departureCity.name,
+                departureCityId = departureCity.id
+            )
+        }
     }
 
-    fun setArrivalCity(arrivalCity: String) {
-        _uiState.update { currentState -> currentState.copy(arrivalCity = arrivalCity) }
+    fun setArrivalCity(arrivalCity: City) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                arrivalCity = arrivalCity.name,
+                arrivalCityId = arrivalCity.id
+            )
+        }
     }
 
 }
