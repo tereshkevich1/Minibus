@@ -182,7 +182,7 @@ private fun NavGraphBuilder.routeConfigurationGraph(
             )
         }
         composable("resultSearchScreen") {
-            ResultSearchScreen(uiState)
+            ResultSearchScreen(uiState,{},{},{})
         }
     }
 }
