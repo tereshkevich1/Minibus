@@ -3,6 +3,7 @@ package com.example.minibus.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,6 +38,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.minibus.R
+import com.example.minibus.models.City
 import com.example.minibus.ui.theme.MinibusTheme
 import com.example.minibus.vm.LocationViewModel
 import com.example.minibus.vm.OrderViewModel
@@ -55,27 +57,39 @@ fun LocationSearchScreen(
 
     Scaffold(topBar = { LocationSearchBar() }) { innerPadding ->
         if (!isLoading) {
-            LazyColumn(modifier = Modifier.padding(innerPadding)) {
-                items(cities) { item ->
-                    CityItem(city = item.name, setCityClick = {
-                        if (departure) {
-                            viewModel.setDepartureCity(item)
-                            navController.popBackStack()
-                        } else {
-                            viewModel.setArrivalCity(item)
-                            navController.popBackStack()
-                        }
-                    })
-                }
-            }
+            LocationsPanel(
+                cities, viewModel, navController,
+                departure, innerPadding
+            )
         } else {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(modifier = Modifier.size(44.dp))
             }
 
         }
     }
 }
+
+@Composable
+fun LocationsPanel(
+    cities: List<City>, viewModel: OrderViewModel, navController: NavController,
+    departure: Boolean, innerPadding: PaddingValues
+) {
+    LazyColumn(modifier = Modifier.padding(innerPadding)) {
+        items(cities) { item ->
+            LocationItem(location = item.name, setLocationClick = {
+                if (departure) {
+                    viewModel.setDepartureCity(item)
+                    navController.popBackStack()
+                } else {
+                    viewModel.setArrivalCity(item)
+                    navController.popBackStack()
+                }
+            })
+        }
+    }
+}
+
 
 @ExperimentalMaterial3Api
 @Composable
@@ -106,9 +120,9 @@ fun LocationSearchBar() {
 }
 
 @Composable
-fun CityItem(city: String, setCityClick: () -> Unit) {
+fun LocationItem(location: String, setLocationClick: () -> Unit) {
     Button(
-        onClick = setCityClick,
+        onClick = setLocationClick,
         modifier = Modifier.fillMaxWidth(),
         shape = RectangleShape,
         colors = ButtonDefaults.buttonColors(
@@ -121,7 +135,7 @@ fun CityItem(city: String, setCityClick: () -> Unit) {
             horizontalArrangement = Arrangement.Start
         ) {
             Text(
-                text = city, modifier = Modifier.padding(
+                text = location, modifier = Modifier.padding(
                     start = dimensionResource(R.dimen.padding_small), top = dimensionResource(
                         id = R.dimen.padding_small
                     ), bottom = dimensionResource(id = R.dimen.padding_small)
@@ -142,7 +156,7 @@ fun StateItemPreview() {
 fun LocationSearchScreenDarkPreview() {
     MinibusTheme(useDarkTheme = true) {
         val viewModel: OrderViewModel = viewModel()
-        LocationSearchScreen( viewModel, rememberNavController(), true)
+        LocationSearchScreen(viewModel, rememberNavController(), true)
     }
 }
 

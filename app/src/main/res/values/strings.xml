@@ -21,4 +21,10 @@
     <string name="date">Дата</string>
     <string name="start_point">Место посадки</string>
     <string name="final_point">Место высадки</string>
+    <string name="number_of_tickets">Количество билетов: </string>
+    <string name="route">Маршрут</string>
+    <string name="transport">Транспорт</string>
+    <string name="payment">Оплата</string>
+    <string name="checkout">Оформить заказ</string>
+    <string name="car_number">Номер: </string>
 </resources>

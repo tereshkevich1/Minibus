@@ -1,5 +1,6 @@
 package com.example.minibus.screens
 
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
@@ -133,7 +134,7 @@ private fun MainScreenNavigationConfigurations(
         routeConfigurationGraph(navController, viewModel, uiState)
         composable(BottomNavigationScreen.TravelHistoryScreen.route) { ProfileSetupScreen() }
         composable(BottomNavigationScreen.ContactsScreen.route) { ProfileSetupScreen() }
-        composable(BottomNavigationScreen.ProfileSetupScreen.route) { ProfileSetupScreen() }
+        composable(BottomNavigationScreen.ProfileSetupScreen.route) { PersonalInformationScreen() }
     }
 }
 
@@ -182,7 +183,18 @@ private fun NavGraphBuilder.routeConfigurationGraph(
             )
         }
         composable("resultSearchScreen") {
-            ResultSearchScreen(uiState,{},{},{})
+            ResultSearchScreen(uiState, viewModel, navController)
+        }
+
+        composable("checkoutScreen/{tripId}") { navBackStackEntry ->
+
+            val tripIdString = navBackStackEntry.arguments?.getString("tripId")
+
+            val tripId = tripIdString?.toIntOrNull() ?: 0
+            Log.d("CheckoutScreen", "Received trip ID as string: $tripIdString")
+
+            Log.d("CheckoutScreen", "Parsed trip ID: $tripId")
+            CheckoutScreen(uiState, viewModel, tripId)
         }
     }
 }

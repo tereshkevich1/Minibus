@@ -21,53 +21,54 @@ import com.example.minibus.ui.theme.MinibusTheme
 
 @Composable
 fun PersonalInformationScreen() {
-
-    Column(
-        modifier = Modifier
-            .padding(dimensionResource(id = R.dimen.padding_medium))
-            .fillMaxWidth()
-    ) {
-
-        InputField(
-            title = stringResource(id = R.string.user_first_name),
-            text = "",
-            label = stringResource(id = R.string.input_first_name),
-            modifier = Modifier.padding(
-                bottom =
-                dimensionResource(id = R.dimen.padding_small)
-            )
-        )
-
-        InputField(
-            title = stringResource(id = R.string.user_last_name),
-            text = "",
-            label = stringResource(id = R.string.input_last_name),
-            modifier = Modifier.padding(
-                bottom =
-                dimensionResource(id = R.dimen.padding_small)
-            )
-        )
-
-        InputField(
-            title = stringResource(id = R.string.user_phone_number),
-            text = "",
-            label = stringResource(id = R.string.input_phone_number),
-            modifier = Modifier.padding(
-                bottom =
-                dimensionResource(id = R.dimen.padding_small)
-            )
-        )
-
-
-        Spacer(modifier = Modifier.weight(1f))
-        ElevatedButton(
-            onClick = { /*TODO*/ }, modifier = Modifier
+    Surface(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .padding(dimensionResource(id = R.dimen.padding_medium))
                 .fillMaxWidth()
-                .height(56.dp)
         ) {
-            Text(text = stringResource(R.string.continue_name))
-        }
 
+            InputField(
+                title = stringResource(id = R.string.user_first_name),
+                text = "",
+                label = stringResource(id = R.string.input_first_name),
+                modifier = Modifier.padding(
+                    bottom =
+                    dimensionResource(id = R.dimen.padding_small)
+                )
+            )
+
+            InputField(
+                title = stringResource(id = R.string.user_last_name),
+                text = "",
+                label = stringResource(id = R.string.input_last_name),
+                modifier = Modifier.padding(
+                    bottom =
+                    dimensionResource(id = R.dimen.padding_small)
+                )
+            )
+
+            InputField(
+                title = stringResource(id = R.string.user_phone_number),
+                text = "",
+                label = stringResource(id = R.string.input_phone_number),
+                modifier = Modifier.padding(
+                    bottom =
+                    dimensionResource(id = R.dimen.padding_small)
+                )
+            )
+
+
+            Spacer(modifier = Modifier.weight(1f))
+            ElevatedButton(
+                onClick = { /*TODO*/ }, modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+            ) {
+                Text(text = stringResource(R.string.save_text))
+            }
+
+        }
     }
 }
 
@@ -76,7 +77,10 @@ fun PersonalInformationScreen() {
 fun InputField(title: String, text: String, label: String, modifier: Modifier) {
 
     Column(modifier = modifier) {
-        Text(text = title, modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_small)))
+        Text(
+            text = title,
+            modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_small))
+        )
         OutlinedTextField(value = text, onValueChange = {}, modifier = Modifier.fillMaxWidth(),
             label = {
                 Text(

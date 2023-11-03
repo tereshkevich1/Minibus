@@ -157,7 +157,7 @@ fun RouteConfigurationScreen(
                     .height(68.dp),
                 elevation = ButtonDefaults.buttonElevation(6.dp)
             ) {
-                Text(text = "Find")
+                Text(text = stringResource(R.string.search))
             }
         }
 

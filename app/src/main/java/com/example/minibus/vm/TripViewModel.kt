@@ -1,8 +1,11 @@
 package com.example.minibus.vm
 
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -37,6 +40,19 @@ class TripViewModel(startingLocationId: Int, finalLocationId: Int, departureDate
             )
             isLoading = false
         }
+    }
+
+    fun printNumberSeats(numberSeats: Int): String {
+        return if (numberSeats <= 5) {
+            "$numberSeats "
+        } else "5+"
+    }
+
+    @Composable
+    fun printColorSeats(numberSeats: Int): Color {
+        return if (numberSeats <= 5) {
+            MaterialTheme.colorScheme.error
+        } else MaterialTheme.colorScheme.primary
     }
 
     fun getDataTrips(): List<TripTime> = trips

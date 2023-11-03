@@ -9,78 +9,110 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.minibus.R
+import com.example.minibus.models.Details
+import com.example.minibus.state_models.TicketUiState
 import com.example.minibus.ui.theme.MinibusTheme
+import com.example.minibus.vm.CheckoutViewModel
+import com.example.minibus.vm.CheckoutViewModelFactory
 import com.example.minibus.vm.OrderViewModel
 
 
 @Composable
-fun CheckoutScreen(viewModel: OrderViewModel) {
+fun CheckoutScreen(uiState: State<TicketUiState>, orderViewModel: OrderViewModel, tripId: Int) {
+    val checkoutViewModel: CheckoutViewModel = viewModel(factory = CheckoutViewModelFactory(tripId))
+
+    val details = checkoutViewModel.getData()
+    val isLoading by rememberUpdatedState(checkoutViewModel.isLoading)
+
     Surface(modifier = Modifier.fillMaxSize()) {
-        val scrollState = rememberScrollState()
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(dimensionResource(id = R.dimen.padding_medium))
-                .verticalScroll(scrollState)
-        ) {
-            TripStopsPanel(
-                {},
-                {}
-            )
-
-            Title("Маршрут")
-
-            InfoPanel(
-                "20:30",
-                "23:50",
-                "Минск",
-                "Иваново",
-                "Станция метро 'Петровщина'",
-                "Автостанция Центральная, платформа 5",
-                "28 окт"
-            )
-
-            Title("Транспорт")
-
-            TransportPanel("Mercedes Sprinter", "Зеленый", "AB 124-23")
-
-            Title("Оплата")
-
-            PaymentPanel("2","50")
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            ElevatedButton(
-                onClick = { }, modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-            ) {
-                Text(text = "Оформить заказ")
+        if (!isLoading && details != null) {
+            OrderPanel(uiState, orderViewModel, details)
+        } else {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(modifier = Modifier.size(44.dp))
             }
-
-
         }
     }
 }
+
+
+@Composable
+fun OrderPanel(uiState: State<TicketUiState>, orderViewModel: OrderViewModel, details: Details) {
+    val scrollState = rememberScrollState()
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(dimensionResource(id = R.dimen.padding_medium))
+            .verticalScroll(scrollState)
+    ) {
+        TripStopsPanel(
+            {},
+            {}
+        )
+
+        Title(stringResource(id = R.string.route))
+
+        InfoPanel(
+            details.time.departureTime.toString(),
+            details.time.arrivalTime.toString(),
+            uiState.value.departureCity,
+            uiState.value.arrivalCity,
+            "Станция метро 'Петровщина'",
+            "Автостанция Центральная, платформа 5",
+            uiState.value.departureDate.toString()
+        )
+
+        Title(stringResource(id = R.string.transport))
+
+        TransportPanel(details.minibus.carName, details.minibus.carColor, details.minibus.carNumber)
+
+        Title(stringResource(id = R.string.payment))
+
+        val numberTickets = uiState.value.numberAdultsSeats + uiState.value.numberChildrenSeats
+        val fullSum = (numberTickets * details.trip.price).toString()
+
+        PaymentPanel(numberTickets.toString(), fullSum)
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        ElevatedButton(
+            onClick = { }, modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+                .padding(bottom = dimensionResource(id = R.dimen.padding_small))
+        ) {
+            Text(text = stringResource(id = R.string.checkout))
+        }
+
+    }
+}
+
 
 @Composable
 fun Title(title: String) {
@@ -115,7 +147,7 @@ fun TransportPanel(carName: String, carColor: String, carNumber: String) {
 
         Column {
             Text(text = "$carColor $carName")
-            Text(text = "Номер: $carNumber")
+            Text(text = stringResource(id = R.string.car_number) + " " + carNumber)
         }
 
     }
@@ -198,9 +230,9 @@ fun LineWithCircles(modifier: Modifier) {
 }
 
 @Composable
-fun PaymentPanel(numberTickets: String, fullSum: String){
-    Row (modifier = Modifier.fillMaxWidth()){
-        Text(text = "Количество билетов: $numberTickets")
+fun PaymentPanel(numberTickets: String, fullSum: String) {
+    Row(modifier = Modifier.fillMaxWidth()) {
+        Text(text = stringResource(id = R.string.number_of_tickets) + " " + numberTickets)
         Spacer(modifier = Modifier.weight(1f))
         Text(text = "$fullSum BYN")
     }
@@ -210,29 +242,22 @@ fun PaymentPanel(numberTickets: String, fullSum: String){
 
 @Composable
 @Preview
-fun DarkInfoPanelPreview() {
+fun CheckoutScreenDarkPreview() {
+    val viewModel: OrderViewModel = viewModel()
+    val uiState = viewModel.uiState.collectAsState()
+
     MinibusTheme(useDarkTheme = true) {
-        Surface(modifier = Modifier.fillMaxSize()) {
-
-
-            InfoPanel(
-                "20:30",
-                "00:50",
-                "Минск",
-                "Иваново",
-                "метро Петровщина",
-                "Автостанция Центральная, платформа 5",
-                "28 окт"
-            )
-        }
+        CheckoutScreen(uiState, viewModel, 1)
     }
 }
 
 @Composable
 @Preview
-fun CheckoutScreenDarkPreview() {
+fun CheckoutScreenLightPreview() {
     val viewModel: OrderViewModel = viewModel()
-    MinibusTheme(useDarkTheme = true) {
-        CheckoutScreen(viewModel)
+    val uiState = viewModel.uiState.collectAsState()
+
+    MinibusTheme(useDarkTheme = false) {
+        CheckoutScreen(uiState, viewModel, 1)
     }
 }

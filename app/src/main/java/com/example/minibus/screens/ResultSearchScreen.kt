@@ -1,5 +1,6 @@
 package com.example.minibus.screens
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,9 +25,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -34,23 +38,28 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.minibus.R
 import com.example.minibus.models.TripTime
 import com.example.minibus.state_models.TicketUiState
 import com.example.minibus.ui.theme.MinibusTheme
+import com.example.minibus.vm.CheckoutViewModel
 import com.example.minibus.vm.MyViewModelFactory
 import com.example.minibus.vm.OrderViewModel
 import com.example.minibus.vm.TripViewModel
 
 @Composable
 fun ResultSearchScreen(
-    uiState: State<TicketUiState>, changeDeparturePoint: () -> Unit,
-    changeArrivalPoint: () -> Unit,
-    checkoutClick: () -> Unit
+    uiState: State<TicketUiState>, viewModel: OrderViewModel,
+    navController: NavController
 ) {
-    val tripViewModel: TripViewModel = viewModel(factory = MyViewModelFactory(uiState.value.departureCityId,
-        uiState.value.arrivalCityId,
-        uiState.value.departureDate.toString()))
+    val tripViewModel: TripViewModel = viewModel(
+        factory = MyViewModelFactory(
+            uiState.value.departureCityId,
+            uiState.value.arrivalCityId,
+            uiState.value.departureDate.toString()
+        )
+    )
 
 
     val trips = tripViewModel.getDataTrips()
@@ -65,11 +74,11 @@ fun ResultSearchScreen(
                 .padding(dimensionResource(id = R.dimen.padding_medium))
         ) {
             TripStopsPanel(
-                changeDeparturePoint,
-                changeArrivalPoint
+                {},
+                {}
             )
             if (!isLoading) {
-                ResultLazyColum(trips, checkoutClick)
+                ResultLazyColum(trips, navController, tripViewModel)
             } else {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(modifier = Modifier.size(44.dp))
@@ -81,14 +90,25 @@ fun ResultSearchScreen(
 }
 
 @Composable
-fun ResultLazyColum(trips: List<TripTime>, checkoutClick: () -> Unit) = LazyColumn {
+fun ResultLazyColum(
+    trips: List<TripTime>,
+    navController: NavController,
+    tripViewModel: TripViewModel
+) = LazyColumn {
     items(trips) { item ->
         SearchItem(
             departureTime = item.departureTime.toString(),
             boardingTime = item.arrivalTime.toString(),
-            numberSeats = item.numberAvailableSeats.toString(),
+            price = item.price.toString(),
+            numberSeats =
+            tripViewModel.printNumberSeats(item.numberAvailableSeats),
+            colorSeats = tripViewModel.printColorSeats(item.numberAvailableSeats),
             fare = "BYN",
-            checkoutClick = {checkoutClick()}
+            checkoutClick = {
+                Log.d("ResultLazyColum", "Navigating to checkoutScreen with trip ID: ${item.id}")
+                navController.navigate("checkoutScreen/${item.id}")
+            }
+
         )
     }
 }
@@ -130,8 +150,10 @@ fun TripStopsPanel(
 fun SearchItem(
     departureTime: String,
     boardingTime: String,
+    price: String,
     numberSeats: String,
     fare: String,
+    colorSeats: Color,
     checkoutClick: () -> Unit
 ) {
     Card(onClick = checkoutClick, modifier = Modifier.fillMaxWidth()) {
@@ -146,11 +168,15 @@ fun SearchItem(
                     )
                 )
                 Text(text = boardingTime)
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.weight(0.8f))
                 Text(
                     text = numberSeats,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(end = dimensionResource(id = R.dimen.padding_medium))
+                    color = colorSeats,
+                    modifier = Modifier.padding(end = dimensionResource(id = R.dimen.padding_large_medium))
+                )
+                Text(
+                    text = price,
+                    modifier = Modifier.padding(end = dimensionResource(id = R.dimen.padding_less_medium))
                 )
                 Text(text = fare)
             }
@@ -192,7 +218,9 @@ fun ResultSearchItemScreenDarkPreview() {
             boardingTime = "00:00",
             numberSeats = "10",
             fare = "100",
-            {}
+            price = "27",
+            colorSeats = Color.Green,
+            checkoutClick = {}
         )
     }
 }
@@ -204,7 +232,7 @@ fun ResultSearchScreenDarkPreview() {
     val viewModel: OrderViewModel = viewModel()
     val uiState: State<TicketUiState> = viewModel.uiState.collectAsState()
     MinibusTheme(useDarkTheme = true) {
-        ResultSearchScreen(uiState, {}, {},{})
+        // ResultSearchScreen(uiState, {}, {},{})
     }
 }
 
@@ -216,6 +244,6 @@ fun ResultSearchScreenLightPreview() {
     val viewModel: OrderViewModel = viewModel()
     val uiState: State<TicketUiState> = viewModel.uiState.collectAsState()
     MinibusTheme(useDarkTheme = false) {
-        ResultSearchScreen(uiState, {}, {},{})
+        // ResultSearchScreen(uiState, {}, {},{})
     }
 }
