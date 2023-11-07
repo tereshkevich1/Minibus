@@ -34,6 +34,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.minibus.R
 import com.example.minibus.models.Details
 import com.example.minibus.state_models.TicketUiState
@@ -44,7 +46,12 @@ import com.example.minibus.vm.OrderViewModel
 
 
 @Composable
-fun CheckoutScreen(uiState: State<TicketUiState>, orderViewModel: OrderViewModel, tripId: Int) {
+fun CheckoutScreen(
+    uiState: State<TicketUiState>,
+    orderViewModel: OrderViewModel,
+    navController: NavController,
+    tripId: Int
+) {
     val checkoutViewModel: CheckoutViewModel = viewModel(factory = CheckoutViewModelFactory(tripId))
 
     val details = checkoutViewModel.getData()
@@ -52,7 +59,7 @@ fun CheckoutScreen(uiState: State<TicketUiState>, orderViewModel: OrderViewModel
 
     Surface(modifier = Modifier.fillMaxSize()) {
         if (!isLoading && details != null) {
-            OrderPanel(uiState, orderViewModel, details)
+            OrderPanel(uiState, orderViewModel, navController, details)
         } else {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(modifier = Modifier.size(44.dp))
@@ -63,7 +70,12 @@ fun CheckoutScreen(uiState: State<TicketUiState>, orderViewModel: OrderViewModel
 
 
 @Composable
-fun OrderPanel(uiState: State<TicketUiState>, orderViewModel: OrderViewModel, details: Details) {
+fun OrderPanel(
+    uiState: State<TicketUiState>,
+    orderViewModel: OrderViewModel,
+    navController: NavController,
+    details: Details
+) {
     val scrollState = rememberScrollState()
     Column(
         modifier = Modifier
@@ -72,8 +84,9 @@ fun OrderPanel(uiState: State<TicketUiState>, orderViewModel: OrderViewModel, de
             .verticalScroll(scrollState)
     ) {
         TripStopsPanel(
-            {},
-            {}
+            { navController.navigate("selectionDeparturePoint") },
+            { navController.navigate("selectionArrivalPoint") },
+            uiState
         )
 
         Title(stringResource(id = R.string.route))
@@ -245,9 +258,9 @@ fun PaymentPanel(numberTickets: String, fullSum: String) {
 fun CheckoutScreenDarkPreview() {
     val viewModel: OrderViewModel = viewModel()
     val uiState = viewModel.uiState.collectAsState()
-
+    val navController = rememberNavController()
     MinibusTheme(useDarkTheme = true) {
-        CheckoutScreen(uiState, viewModel, 1)
+        CheckoutScreen(uiState, viewModel, navController, 1)
     }
 }
 
@@ -256,8 +269,8 @@ fun CheckoutScreenDarkPreview() {
 fun CheckoutScreenLightPreview() {
     val viewModel: OrderViewModel = viewModel()
     val uiState = viewModel.uiState.collectAsState()
-
+    val navController = rememberNavController()
     MinibusTheme(useDarkTheme = false) {
-        CheckoutScreen(uiState, viewModel, 1)
+        CheckoutScreen(uiState, viewModel, navController, 1)
     }
 }

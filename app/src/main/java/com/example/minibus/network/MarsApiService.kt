@@ -5,6 +5,7 @@ import com.example.minibus.models.Details
 import com.example.minibus.models.Driver
 import com.example.minibus.models.StopPoint
 import com.example.minibus.models.TripTime
+import com.example.minibus.models.UserTravelHistory
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
@@ -21,7 +22,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 private const val BASE_URL =
-    "http://192.168.1.6:8080"
+    "http://192.168.100.3:8080"
 
 /**
  * Use the Retrofit builder to build a retrofit object using a kotlinx.serialization converter
@@ -66,6 +67,13 @@ interface MinibusApiService {
     suspend fun getStopsByCityId(
         @Path("city_id") cityId: Int
     ): List<StopPoint>
+
+    @GET("userHistory/{user_id}")
+    suspend fun  getUserTravelHistory(
+        @Path("user_id") cityId: Int
+    ): List<UserTravelHistory>
+
+
 }
 
 /**

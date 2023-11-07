@@ -1,6 +1,5 @@
-package com.example.minibus.screens
+package com.example.minibus.navigation
 
-import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
@@ -23,17 +22,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.example.minibus.R
+import com.example.minibus.screens.PersonalInformationScreen
+import com.example.minibus.screens.ProfileSetupScreen
 import com.example.minibus.state_models.TicketUiState
 import com.example.minibus.vm.OrderViewModel
 
@@ -68,6 +66,7 @@ fun MainScreen() {
 
     val viewModel: OrderViewModel = viewModel()
     val uiState = viewModel.uiState.collectAsState()
+
 
     Scaffold(
         bottomBar = {
@@ -123,8 +122,9 @@ private fun MainScreenNavigationConfigurations(
     navController: NavHostController,
     modifier: Modifier,
     viewModel: OrderViewModel,
-    uiState: State<TicketUiState>
-) {
+    uiState: State<TicketUiState>,
+
+    ) {
     NavHost(
         navController,
         startDestination = "option",
@@ -139,64 +139,5 @@ private fun MainScreenNavigationConfigurations(
 }
 
 
-private fun NavGraphBuilder.routeConfigurationGraph(
-    navController: NavController,
-    viewModel: OrderViewModel,
-    uiState: State<TicketUiState>
-) {
-    navigation(
-        startDestination = BottomNavigationScreen.RouteConfigurationScreen.route,
-        route = "option"
-    ) {
-        composable(BottomNavigationScreen.RouteConfigurationScreen.route) {
-            RouteConfigurationScreen(
-                onStartAddPassengerClicked = { navController.navigate("addPassengers") },
-                onDepartureSelectionClick = { navController.navigate("selectionDeparture") },
-                onArrivalSelectionClick = { navController.navigate("selectionArrival") },
-                onFindTripsClick = { navController.navigate("resultSearchScreen") },
-                onShowCalendarClick = { viewModel.showCalendar() },
-                selection = viewModel.calendarSelection,
-                state = viewModel.calendarState,
-                dateText = uiState.value.departureDate.toString(),
-                numberPassengersText = (uiState.value.numberChildrenSeats + uiState.value.numberAdultsSeats).toString(),
-                departureCity = uiState.value.departureCity,
-                arrivalCity = uiState.value.arrivalCity
-            )
-        }
-        composable("addPassengers") {
-            AddPassengersScreen(
-                viewModel,
-                uiState,
-                navController
-            )
-        }
-        composable("selectionArrival") {
-
-
-            LocationSearchScreen(
-                viewModel, navController, departure = false
-            )
-        }
-        composable("selectionDeparture") {
-            LocationSearchScreen(
-                viewModel, navController, departure = true
-            )
-        }
-        composable("resultSearchScreen") {
-            ResultSearchScreen(uiState, viewModel, navController)
-        }
-
-        composable("checkoutScreen/{tripId}") { navBackStackEntry ->
-
-            val tripIdString = navBackStackEntry.arguments?.getString("tripId")
-
-            val tripId = tripIdString?.toIntOrNull() ?: 0
-            Log.d("CheckoutScreen", "Received trip ID as string: $tripIdString")
-
-            Log.d("CheckoutScreen", "Parsed trip ID: $tripId")
-            CheckoutScreen(uiState, viewModel, tripId)
-        }
-    }
-}
 
 

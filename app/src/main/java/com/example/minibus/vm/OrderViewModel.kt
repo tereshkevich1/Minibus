@@ -2,6 +2,7 @@ package com.example.minibus.vm
 
 import androidx.lifecycle.ViewModel
 import com.example.minibus.models.City
+import com.example.minibus.models.StopPoint
 import com.example.minibus.state_models.TicketUiState
 import com.maxkeppeker.sheets.core.models.base.UseCaseState
 import com.maxkeppeler.sheets.calendar.models.CalendarSelection
@@ -69,6 +70,32 @@ class OrderViewModel : ViewModel() {
                 arrivalCity = arrivalCity.name,
                 arrivalCityId = arrivalCity.id
             )
+        }
+    }
+
+    private fun setDeparturePoint(departurePoint: StopPoint) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                departurePointId = departurePoint.id,
+                departurePoint = departurePoint.name
+            )
+        }
+    }
+
+    private fun setArrivalPoint(arrivalPoint: StopPoint) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                arrivalPointId = arrivalPoint.id,
+                arrivalPoint = arrivalPoint.name
+            )
+        }
+    }
+
+    fun changeStoppingPoint(departurePoint: Boolean, point: StopPoint) {
+        if (departurePoint) {
+            setDeparturePoint(point)
+        } else {
+            setArrivalPoint(point)
         }
     }
 

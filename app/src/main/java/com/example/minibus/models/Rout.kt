@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class RoutD(
     val id: Int,
-    val startingLocation: Int,
-    val finalLocation: Int,
+    val startingLocationId: Int,
+    val finalLocationId: Int,
     val duration: Int
 )

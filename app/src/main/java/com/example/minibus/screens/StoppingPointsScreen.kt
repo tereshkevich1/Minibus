@@ -23,22 +23,43 @@ import com.example.minibus.vm.StoppingPointsViewModel
 import com.example.minibus.vm.StoppingPointsViewModelFactory
 
 @Composable
-fun StoppingPointsScreen(uiState: State<TicketUiState>) {
+fun StoppingPointsScreen(
+    uiState: State<TicketUiState>,
+    departurePoint: Boolean,
+    viewModel: OrderViewModel
+) {
 
-    val stoppingPointsViewModel: StoppingPointsViewModel = viewModel(factory = StoppingPointsViewModelFactory(10))
+    val stoppingPointsViewModel: StoppingPointsViewModel = if (departurePoint) {
+        viewModel(
+            factory = StoppingPointsViewModelFactory(
+                uiState.value.departureCityId,
+                departurePoint
+            )
+        )
+    } else {
+        viewModel(
+            factory = StoppingPointsViewModelFactory(
+                uiState.value.arrivalCityId,
+                departurePoint
+            )
+        )
+    }
+
+
     val cities by stoppingPointsViewModel.stoppingPointsData.collectAsState()
     val isLoading by stoppingPointsViewModel.isLoading.collectAsState()
-    Surface(modifier = Modifier.fillMaxSize()) {
-        if (!isLoading){
-            LazyColumn() {
-                items(cities) { item ->
-                    LocationItem(location = item.name, setLocationClick = {
 
-                    })
+    Surface(modifier = Modifier.fillMaxSize()) {
+        if (!isLoading) {
+            LazyColumn {
+                items(cities) { item ->
+                    LocationItem(
+                        location = item.name,
+                        setLocationClick = { viewModel.changeStoppingPoint(departurePoint, item) }
+                    )
                 }
             }
-        }
-        else{
+        } else {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(modifier = Modifier.size(44.dp))
             }
@@ -48,13 +69,12 @@ fun StoppingPointsScreen(uiState: State<TicketUiState>) {
 }
 
 
-
 @Composable
 @Preview
-fun StoppingPointsDarkScreen(){
+fun StoppingPointsDarkScreen() {
     MinibusTheme(useDarkTheme = true) {
         val viewModel: OrderViewModel = viewModel()
         val uiState = viewModel.uiState.collectAsState()
-        StoppingPointsScreen(uiState)
+        StoppingPointsScreen(uiState, true, viewModel)
     }
 }

@@ -18,16 +18,13 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,11 +36,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.minibus.R
 import com.example.minibus.models.TripTime
 import com.example.minibus.state_models.TicketUiState
 import com.example.minibus.ui.theme.MinibusTheme
-import com.example.minibus.vm.CheckoutViewModel
 import com.example.minibus.vm.MyViewModelFactory
 import com.example.minibus.vm.OrderViewModel
 import com.example.minibus.vm.TripViewModel
@@ -74,8 +71,9 @@ fun ResultSearchScreen(
                 .padding(dimensionResource(id = R.dimen.padding_medium))
         ) {
             TripStopsPanel(
-                {},
-                {}
+                { navController.navigate("selectionDeparturePoint") },
+                { navController.navigate("selectionArrivalPoint") },
+                uiState
             )
             if (!isLoading) {
                 ResultLazyColum(trips, navController, tripViewModel)
@@ -116,10 +114,11 @@ fun ResultLazyColum(
 @Composable
 fun TripStopsPanel(
     changeDeparturePoint: () -> Unit,
-    changeArrivalPoint: () -> Unit
+    changeArrivalPoint: () -> Unit,
+    uiState: State<TicketUiState>
 ) {
     StopsRow(
-        departurePoint = "",
+        departurePoint = uiState.value.departurePoint.toString(),
         title = stringResource(R.string.start_point),
         changeStopPoint = { changeDeparturePoint() })
     Divider(
@@ -130,7 +129,7 @@ fun TripStopsPanel(
                 bottom = dimensionResource(id = R.dimen.padding_small)
             )
     )
-    StopsRow(departurePoint = "",
+    StopsRow(departurePoint = uiState.value.arrivalPoint.toString(),
         title = stringResource(R.string.final_point),
         changeStopPoint = { changeArrivalPoint() })
     Divider(
@@ -243,7 +242,8 @@ fun ResultSearchScreenLightPreview() {
 
     val viewModel: OrderViewModel = viewModel()
     val uiState: State<TicketUiState> = viewModel.uiState.collectAsState()
+    val navController = rememberNavController()
     MinibusTheme(useDarkTheme = false) {
-        // ResultSearchScreen(uiState, {}, {},{})
+        ResultSearchScreen(uiState, viewModel, navController)
     }
 }

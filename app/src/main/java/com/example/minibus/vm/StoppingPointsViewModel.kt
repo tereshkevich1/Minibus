@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class StoppingPointsViewModel(val cityId: Int) : ViewModel() {
+class StoppingPointsViewModel(val cityId: Int, val departurePoint: Boolean) : ViewModel() {
     private val _stoppingPointsData = MutableStateFlow<List<StopPoint>>(emptyList())
     val stoppingPointsData: StateFlow<List<StopPoint>> = _stoppingPointsData
 
@@ -25,16 +25,16 @@ class StoppingPointsViewModel(val cityId: Int) : ViewModel() {
     private fun loadData() {
         // Simulate loading data from a database
         viewModelScope.launch {
-            Log.d("getDataSPVM","data loaded")
+            Log.d("getDataSPVM", "data loaded")
             _stoppingPointsData.value = MinibusApi.retrofitService.getStopsByCityId(cityId)
             _isLoading.value = false
         }
     }
 }
 
-class StoppingPointsViewModelFactory(private val cityId: Int) :
+class StoppingPointsViewModelFactory(private val cityId: Int, private val departurePoint: Boolean) :
     ViewModelProvider.NewInstanceFactory() {
     override fun <T : ViewModel> create(modelClass: Class<T>): T =
-        StoppingPointsViewModel(cityId) as T
+        StoppingPointsViewModel(cityId, departurePoint) as T
 }
 
