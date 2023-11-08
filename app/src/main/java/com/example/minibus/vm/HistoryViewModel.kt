@@ -8,6 +8,8 @@ import com.example.minibus.network.MinibusApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalTime
+import java.time.temporal.ChronoUnit
 
 class HistoryViewModel : ViewModel() {
 
@@ -23,8 +25,23 @@ class HistoryViewModel : ViewModel() {
 
     private fun loadUserTravelHistoryList() {
         viewModelScope.launch {
-            _userTravelHistoryList.value = MinibusApi.retrofitService.getUserTravelHistory(4)
-            Log.d("getUserTravelHistory","${_userTravelHistoryList.value}")
+            _userTravelHistoryList.value = MinibusApi.retrofitService.getUserTravelHistory(3)
+            Log.d("getUserTravelHistory", "${_userTravelHistoryList.value}")
+            _isLoading.value = false
         }
+    }
+
+    fun setDuration(startTime: LocalTime, endTime: LocalTime): String {
+        val duration = if (startTime.isBefore(endTime)) {
+            ChronoUnit.MINUTES.between(startTime, endTime)
+        } else {
+            ChronoUnit.MINUTES.between(startTime, LocalTime.MAX).plus(1) +
+                    ChronoUnit.MINUTES.between(LocalTime.MIN, endTime)
+        }
+
+        val hours = duration / 60
+        val minutes = duration % 60
+
+        return "${hours}ч ${minutes}мин"
     }
 }

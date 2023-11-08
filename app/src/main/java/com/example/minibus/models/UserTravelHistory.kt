@@ -7,7 +7,10 @@ import kotlinx.serialization.Serializable
 data class UserTravelHistory(
     val order: Order,
     val trip: Trip,
-    val minibus: Bus,
     val time: Time,
-    val route: RoutD
+    val route: RoutD,
+    val departureCity: String,
+    val arrivalCity: String,
+    val departurePoint: String,
+    val arrivalPoint: String
 )

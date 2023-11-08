@@ -109,3 +109,16 @@ object LocalTimeSerializer : KSerializer<LocalTime> {
     }
 }
 
+object JsonFormat {
+    val instance: Json = Json {
+        serializersModule = SerializersModule {
+            contextual(LocalDate::class, LocalDateSerializer)
+            contextual(LocalTime::class, LocalTimeSerializer)
+        }
+        // Вы можете добавить другие настройки Json, например:
+        // encodeDefaults = true
+        // ignoreUnknownKeys = true
+        // и т.д.
+    }
+}
+

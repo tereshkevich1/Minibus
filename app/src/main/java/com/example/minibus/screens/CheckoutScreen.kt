@@ -37,12 +37,17 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.minibus.R
+import com.example.minibus.models.Bus
 import com.example.minibus.models.Details
+import com.example.minibus.models.Time
+import com.example.minibus.models.Trip
 import com.example.minibus.state_models.TicketUiState
 import com.example.minibus.ui.theme.MinibusTheme
 import com.example.minibus.vm.CheckoutViewModel
 import com.example.minibus.vm.CheckoutViewModelFactory
 import com.example.minibus.vm.OrderViewModel
+import java.time.LocalDate
+import java.time.LocalTime
 
 
 @Composable
@@ -259,8 +264,15 @@ fun CheckoutScreenDarkPreview() {
     val viewModel: OrderViewModel = viewModel()
     val uiState = viewModel.uiState.collectAsState()
     val navController = rememberNavController()
+    val bus = Bus(1,"синий",11,"Mercedes","AB-9569")
+    val time = Time(1, LocalTime.MIDNIGHT, LocalTime.NOON)
+    val trip = Trip(1,1,1,1,1,1,1, LocalDate.now())
+    val details = Details(trip,bus,time)
     MinibusTheme(useDarkTheme = true) {
-        CheckoutScreen(uiState, viewModel, navController, 1)
+        Surface(modifier = Modifier.fillMaxSize()) {
+            OrderPanel(uiState, viewModel, navController, details)
+        }
+
     }
 }
 
@@ -270,7 +282,14 @@ fun CheckoutScreenLightPreview() {
     val viewModel: OrderViewModel = viewModel()
     val uiState = viewModel.uiState.collectAsState()
     val navController = rememberNavController()
+    val bus = Bus(1,"синий",11,"Mercedes","AB-9569")
+    val time = Time(1, LocalTime.MIDNIGHT, LocalTime.NOON)
+    val trip = Trip(1,1,1,1,1,1,1, LocalDate.now())
+    val details = Details(trip,bus,time)
     MinibusTheme(useDarkTheme = false) {
-        CheckoutScreen(uiState, viewModel, navController, 1)
+        Surface(modifier = Modifier.fillMaxSize()) {
+            OrderPanel(uiState, viewModel, navController, details)
+        }
+
     }
 }

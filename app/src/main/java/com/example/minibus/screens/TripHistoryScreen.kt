@@ -1,8 +1,11 @@
 package com.example.minibus.screens
 
+import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,11 +13,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material.Card
 import androidx.compose.material.Divider
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -29,26 +35,45 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.minibus.R
-import com.example.minibus.models.RoutD
 import com.example.minibus.models.Time
+import com.example.minibus.models.UserTravelHistory
+import com.example.minibus.network.JsonFormat
 import com.example.minibus.ui.theme.MinibusTheme
 import com.example.minibus.vm.HistoryViewModel
+import kotlinx.serialization.encodeToString
 import java.time.LocalDate
 
 
 @Composable
-fun TripHistoryScreen() {
-
+fun TripHistoryScreen(navController: NavController) {
 
     val historyViewModel: HistoryViewModel = viewModel()
     val userTravelHistoryList by historyViewModel.userTravelHistoryList.collectAsState()
     val isLoading by historyViewModel.isLoading.collectAsState()
 
+    if (!isLoading) {
+        InformationLazyColumn(userTravelHistoryList, historyViewModel, navController)
+    } else {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator(modifier = Modifier.size(44.dp))
+        }
+    }
+}
+
+
+@Composable
+fun InformationLazyColumn(
+    userTravelHistoryList: List<UserTravelHistory>,
+    historyViewModel: HistoryViewModel, navController: NavController
+) {
     LazyColumn(
         modifier = Modifier.padding(
             top = 80.dp,
@@ -60,23 +85,34 @@ fun TripHistoryScreen() {
     ) {
         items(userTravelHistoryList) { item ->
             CardTripInformation(
-                item.route,
+                item.departureCity,
+                item.arrivalCity,
                 item.time,
-                item.order.departureStopId.toString(),
-                item.order.arrivalStopId.toString(),
+                item.departurePoint,
+                item.arrivalPoint,
                 item.trip.departureDate,
                 item.trip.price,
-                item.order.numberTickets
+                item.order.numberTickets,
+                historyViewModel,
+                moreInfoClick =
+                {
+                    Log.d("TripHistoryClick","work!")
+                    val json = Uri.encode(JsonFormat.instance.encodeToString(item))
+                    Log.d("TripHistoryClick","wo $json")
+                    navController.navigate("detailsScreen/$json")
+                }
             )
         }
-        // CardTripInformation()
     }
 }
 
+
 @Composable
 fun CardTripInformation(
-    route: RoutD, time: Time, departurePoint: String, arrivalPoint: String,
-    departureDate: LocalDate, price: Int, numberSeats: Int
+    departureCity: String, arrivalCity: String,
+    time: Time, departurePoint: String, arrivalPoint: String,
+    departureDate: LocalDate, price: Int, numberSeats: Int,
+    historyViewModel: HistoryViewModel, moreInfoClick: () -> Unit
 ) {
     ElevatedCard(
         modifier = Modifier
@@ -84,8 +120,7 @@ fun CardTripInformation(
             .height(170.dp)
             .padding(bottom = dimensionResource(id = R.dimen.padding_medium))
             .clip(MaterialTheme.shapes.medium)
-            .clickable {  }
-            ,
+            .clickable { moreInfoClick() },
 
         ) {
         Column(
@@ -97,9 +132,9 @@ fun CardTripInformation(
             )
         ) {
 
-            DirectionRow(route)
+            DirectionRow(departureCity, arrivalCity)
 
-            TimeRow(time)
+            TimeRow(time, historyViewModel)
 
             LocationRow(departurePoint, arrivalPoint)
 
@@ -113,7 +148,7 @@ fun CardTripInformation(
 fun CardTripOptionInformation(imageVector: Painter, text: String) {
     Card(
         modifier = Modifier.padding(end = dimensionResource(id = R.dimen.padding_small)),
-        backgroundColor = MaterialTheme.colorScheme.tertiaryContainer
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
     ) {
         Row(
             modifier = Modifier.padding(
@@ -137,19 +172,19 @@ fun CardTripOptionInformation(imageVector: Painter, text: String) {
 }
 
 @Composable
-fun DirectionRow(route: RoutD) {
+fun DirectionRow(departureCity: String, arrivalCity: String) {
     Row(modifier = Modifier.padding(bottom = dimensionResource(id = R.dimen.padding_small))) {
-        Text(text = route.startingLocationId.toString(), fontWeight = FontWeight.Bold)
+        Text(text = departureCity, fontWeight = FontWeight.Bold)
         Icon(
             painter = painterResource(id = R.drawable.baseline_arrow_right_alt_24),
             contentDescription = ""
         )
-        Text(text = route.finalLocationId.toString(), fontWeight = FontWeight.Bold)
+        Text(text = arrivalCity, fontWeight = FontWeight.Bold)
     }
 }
 
 @Composable
-fun TimeRow(time: Time) {
+fun TimeRow(time: Time, historyViewModel: HistoryViewModel) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -168,7 +203,11 @@ fun TimeRow(time: Time) {
                 .fillMaxWidth(), horizontalArrangement = Arrangement.Center
         ) {
 
-            Text(text = "03ч 55мин", fontSize = 10.sp)
+
+            Text(
+                text = historyViewModel.setDuration(time.departureTime, time.arrivalTime),
+                fontSize = 10.sp
+            )
         }
 
         Divider(
@@ -195,14 +234,25 @@ fun LocationRow(departurePoint: String, arrivalPoint: String) {
             .padding(dimensionResource(id = R.dimen.padding_extra_small)),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = "АВ Центральный", modifier = Modifier.weight(2f), fontSize = 10.sp)
+        Text(
+            text = departurePoint,
+            modifier = Modifier.weight(2f),
+            fontSize = 10.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
         Spacer(modifier = Modifier.weight(1f))
         Row(
             modifier = Modifier
                 .weight(2f)
                 .fillMaxWidth(), horizontalArrangement = Arrangement.End
         ) {
-            Text(text = "АВ Центральный", fontSize = 10.sp)
+            Text(
+                text = arrivalPoint,
+                fontSize = 10.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 }
@@ -233,10 +283,11 @@ fun AdditionalInformationRow(departureDate: LocalDate, price: Int, numberSeats: 
 @Composable
 @Preview
 fun TripHistoryScreenDarkPreview() {
+    val navController = rememberNavController()
 
     MinibusTheme(useDarkTheme = true) {
         androidx.compose.material3.Surface(modifier = Modifier.fillMaxSize()) {
-            TripHistoryScreen()
+            TripHistoryScreen(navController)
         }
 
     }
@@ -246,9 +297,10 @@ fun TripHistoryScreenDarkPreview() {
 @Composable
 @Preview
 fun TripHistoryScreenLightPreview() {
+    val navController = rememberNavController()
     MinibusTheme(useDarkTheme = false) {
         androidx.compose.material3.Surface(modifier = Modifier.fillMaxSize()) {
-            TripHistoryScreen()
+            TripHistoryScreen(navController)
         }
     }
 }
