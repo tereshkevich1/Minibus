@@ -6,5 +6,6 @@ import kotlinx.serialization.Serializable
 data class Details (
     val trip: Trip,
     val minibus: Bus,
-    val time: Time
+    val time: Time,
+    val busInfo: Car
 )

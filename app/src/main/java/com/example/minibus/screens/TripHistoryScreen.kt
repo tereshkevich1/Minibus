@@ -17,13 +17,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material.Divider
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -59,13 +60,30 @@ fun TripHistoryScreen(navController: NavController) {
     val userTravelHistoryList by historyViewModel.userTravelHistoryList.collectAsState()
     val isLoading by historyViewModel.isLoading.collectAsState()
 
-    if (!isLoading) {
-        InformationLazyColumn(userTravelHistoryList, historyViewModel, navController)
-    } else {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(modifier = Modifier.size(44.dp))
+    Surface(modifier = Modifier.fillMaxSize()) {
+
+        Column {
+
+
+            SwitchPanel(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = dimensionResource(id = R.dimen.padding_extra_small),
+                        end = dimensionResource(id = R.dimen.padding_extra_small),
+                        bottom = dimensionResource(id = R.dimen.padding_large_medium)
+                    )
+            )
+            if (!isLoading) {
+                InformationLazyColumn(userTravelHistoryList, historyViewModel, navController)
+            } else {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(modifier = Modifier.size(44.dp))
+                }
+            }
         }
     }
+
 }
 
 
@@ -76,7 +94,6 @@ fun InformationLazyColumn(
 ) {
     LazyColumn(
         modifier = Modifier.padding(
-            top = 80.dp,
             start = dimensionResource(id = R.dimen.padding_medium),
             end = dimensionResource(id = R.dimen.padding_medium)
         ),
@@ -96,9 +113,9 @@ fun InformationLazyColumn(
                 historyViewModel,
                 moreInfoClick =
                 {
-                    Log.d("TripHistoryClick","work!")
+                    Log.d("TripHistoryClick", "work!")
                     val json = Uri.encode(JsonFormat.instance.encodeToString(item))
-                    Log.d("TripHistoryClick","wo $json")
+                    Log.d("TripHistoryClick", "wo $json")
                     navController.navigate("detailsScreen/$json")
                 }
             )
@@ -148,7 +165,7 @@ fun CardTripInformation(
 fun CardTripOptionInformation(imageVector: Painter, text: String) {
     Card(
         modifier = Modifier.padding(end = dimensionResource(id = R.dimen.padding_small)),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary)
     ) {
         Row(
             modifier = Modifier.padding(

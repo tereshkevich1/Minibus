@@ -1,6 +1,7 @@
 package com.example.minibus.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
@@ -64,6 +66,18 @@ fun RouteConfigurationScreen(
     departureCity: String,
     arrivalCity: String
 ) {
+    val colors = if (isSystemInDarkTheme()) {
+        ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.secondary,
+            contentColor = MaterialTheme.colorScheme.secondaryContainer
+        )
+    } else {
+        ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+        )
+    }
+
     Surface(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -87,7 +101,9 @@ fun RouteConfigurationScreen(
                 shape = MaterialTheme.shapes.large,
                 text = stringResource(R.string.from_text),
                 directionText = departureCity,
-                changeDirection = { onDepartureSelectionClick() })
+                changeDirection = { onDepartureSelectionClick() },
+                colors
+            )
 
             Divider(
                 modifier = Modifier.fillMaxWidth()
@@ -98,7 +114,9 @@ fun RouteConfigurationScreen(
                 shape = MaterialTheme.shapes.small,
                 text = stringResource(R.string.where_text),
                 directionText = arrivalCity,
-                changeDirection = { onArrivalSelectionClick() })
+                changeDirection = { onArrivalSelectionClick() },
+                colors = colors
+            )
 
 
             Row(
@@ -120,7 +138,8 @@ fun RouteConfigurationScreen(
                     title = stringResource(id = R.string.date),
                     text = dateText,
                     imageVector = Icons.Filled.DateRange,
-                    changeTipOption = onShowCalendarClick
+                    changeTipOption = onShowCalendarClick,
+                    colors = colors
                 )
 
                 Divider(
@@ -138,7 +157,8 @@ fun RouteConfigurationScreen(
                     title = stringResource(R.string.passengers),
                     text = "$numberPassengersText человек",
                     imageVector = Icons.Filled.Person,
-                    changeTipOption = { onStartAddPassengerClicked() }
+                    changeTipOption = { onStartAddPassengerClicked() },
+                    colors = colors
                 )
             }
 
@@ -170,7 +190,8 @@ fun DirectionButton(
     shape: Shape,
     text: String,
     directionText: String,
-    changeDirection: () -> Unit
+    changeDirection: () -> Unit,
+    colors: ButtonColors
 ) {
     ElevatedButton(
         onClick = changeDirection,
@@ -179,10 +200,7 @@ fun DirectionButton(
             .height(72.dp),
         shape = shape,
         elevation = ButtonDefaults.buttonElevation(6.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.secondary,
-            contentColor = MaterialTheme.colorScheme.secondaryContainer
-        )
+        colors = colors
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -209,17 +227,15 @@ fun TripOptionsButton(
     text: String,
     title: String,
     imageVector: ImageVector,
-    changeTipOption: () -> Unit
+    changeTipOption: () -> Unit,
+    colors: ButtonColors
 ) {
     Button(
         onClick = changeTipOption,
         modifier = modifier,
         shape = shape,
         elevation = ButtonDefaults.buttonElevation(6.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.secondary,
-            contentColor = MaterialTheme.colorScheme.secondaryContainer
-        )
+        colors = colors
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             Text(

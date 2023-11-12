@@ -3,7 +3,6 @@ package com.example.minibus.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,7 +17,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -43,7 +42,7 @@ import com.example.minibus.ui.theme.MinibusTheme
 import com.example.minibus.vm.LocationViewModel
 import com.example.minibus.vm.OrderViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun LocationSearchScreen(
     viewModel: OrderViewModel, navController: NavController,
@@ -54,12 +53,12 @@ fun LocationSearchScreen(
 
     val isLoading by rememberUpdatedState(locationViewModel.isLoading)
 
+    Surface(modifier = Modifier.fillMaxSize()) {
 
-    Scaffold(topBar = { LocationSearchBar() }) { innerPadding ->
         if (!isLoading) {
             LocationsPanel(
                 cities, viewModel, navController,
-                departure, innerPadding
+                departure
             )
         } else {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -67,15 +66,16 @@ fun LocationSearchScreen(
             }
 
         }
+
     }
 }
 
 @Composable
 fun LocationsPanel(
     cities: List<City>, viewModel: OrderViewModel, navController: NavController,
-    departure: Boolean, innerPadding: PaddingValues
+    departure: Boolean
 ) {
-    LazyColumn(modifier = Modifier.padding(innerPadding)) {
+    LazyColumn() {
         items(cities) { item ->
             LocationItem(location = item.name, setLocationClick = {
                 if (departure) {

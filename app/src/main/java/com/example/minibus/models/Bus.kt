@@ -5,8 +5,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Bus (
     val id: Int,
-    val carColor: String,
-    val numberSeats: Int,
-    val carName: String,
-    val carNumber: String
+    val carNumber: String,
+    val carId: Int,
+    val yearOfManufacture: Int,
+    val carColor: String
 )

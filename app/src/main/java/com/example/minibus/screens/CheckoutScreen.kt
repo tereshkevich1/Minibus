@@ -38,6 +38,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.minibus.R
 import com.example.minibus.models.Bus
+import com.example.minibus.models.Car
 import com.example.minibus.models.Details
 import com.example.minibus.models.Time
 import com.example.minibus.models.Trip
@@ -108,7 +109,7 @@ fun OrderPanel(
 
         Title(stringResource(id = R.string.transport))
 
-        TransportPanel(details.minibus.carName, details.minibus.carColor, details.minibus.carNumber)
+        TransportPanel(details.busInfo.brandModel, details.minibus.carColor, details.minibus.carNumber)
 
         Title(stringResource(id = R.string.payment))
 
@@ -264,10 +265,11 @@ fun CheckoutScreenDarkPreview() {
     val viewModel: OrderViewModel = viewModel()
     val uiState = viewModel.uiState.collectAsState()
     val navController = rememberNavController()
-    val bus = Bus(1,"синий",11,"Mercedes","AB-9569")
+    val bus = Bus(1,"AB-1234",1,2009,"Зеленый")
     val time = Time(1, LocalTime.MIDNIGHT, LocalTime.NOON)
+    val car = Car(1,"Mercedes Sprinter",15)
     val trip = Trip(1,1,1,1,1,1,1, LocalDate.now())
-    val details = Details(trip,bus,time)
+    val details = Details(trip,bus,time,car)
     MinibusTheme(useDarkTheme = true) {
         Surface(modifier = Modifier.fillMaxSize()) {
             OrderPanel(uiState, viewModel, navController, details)
@@ -282,10 +284,11 @@ fun CheckoutScreenLightPreview() {
     val viewModel: OrderViewModel = viewModel()
     val uiState = viewModel.uiState.collectAsState()
     val navController = rememberNavController()
-    val bus = Bus(1,"синий",11,"Mercedes","AB-9569")
+    val bus = Bus(1,"AB-1234",1,2009,"Зеленый")
     val time = Time(1, LocalTime.MIDNIGHT, LocalTime.NOON)
+    val car = Car(1,"Mercedes Sprinter",15)
     val trip = Trip(1,1,1,1,1,1,1, LocalDate.now())
-    val details = Details(trip,bus,time)
+    val details = Details(trip,bus,time,car)
     MinibusTheme(useDarkTheme = false) {
         Surface(modifier = Modifier.fillMaxSize()) {
             OrderPanel(uiState, viewModel, navController, details)

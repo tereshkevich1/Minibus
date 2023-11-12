@@ -10,10 +10,14 @@ import androidx.compose.material.LocalContentColor
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
@@ -34,6 +38,7 @@ import com.example.minibus.screens.PersonalInformationScreen
 import com.example.minibus.screens.ProfileSetupScreen
 import com.example.minibus.state_models.TicketUiState
 import com.example.minibus.vm.OrderViewModel
+import com.example.minibus.vm.UserViewModel
 
 sealed class BottomNavigationScreen(
     val route: String,
@@ -54,8 +59,9 @@ sealed class BottomNavigationScreen(
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen() {
+fun MainScreen(userViewModel: UserViewModel) {
     val items = listOf(
         BottomNavigationScreen.RouteConfigurationScreen,
         BottomNavigationScreen.TravelHistoryScreen,
@@ -68,18 +74,43 @@ fun MainScreen() {
     val uiState = viewModel.uiState.collectAsState()
 
 
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+    val showTopBar = currentRoute != BottomNavigationScreen.RouteConfigurationScreen.route // Пример условия для показа TopBar
+    val topBarTitle = getTitleForRoute(currentRoute)
+
     Scaffold(
+        topBar = {
+            if (showTopBar) {
+                TopAppBar(
+                    title = { Text(text = topBarTitle) },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.navigateUp() }) {
+                            Icon(Icons.Filled.ArrowBack, contentDescription = "Назад")
+                        }
+                    }
+                )
+            }
+        },
         bottomBar = {
             BottomNavigationBar(navController, items)
         }
     ) { innerPadding ->
         MainScreenNavigationConfigurations(
             navController, Modifier.padding(innerPadding),
-            viewModel, uiState
+            viewModel, uiState, userViewModel
         )
     }
 }
 
+fun getTitleForRoute(route: String?): String {
+    return when (route) {
+        BottomNavigationScreen.RouteConfigurationScreen.route -> "Настройка маршрута"
+        BottomNavigationScreen.TravelHistoryScreen.route -> "История поездок"
+        BottomNavigationScreen.ContactsScreen.route -> "Контакты"
+        BottomNavigationScreen.ProfileSetupScreen.route -> "Настройка профиля"
+        else -> "Приложение"
+    }
+}
 
 @Composable
 private fun BottomNavigationBar(
@@ -123,6 +154,7 @@ private fun MainScreenNavigationConfigurations(
     modifier: Modifier,
     viewModel: OrderViewModel,
     uiState: State<TicketUiState>,
+    userViewModel: UserViewModel
 
     ) {
     NavHost(
@@ -132,9 +164,9 @@ private fun MainScreenNavigationConfigurations(
     ) {
 
         routeConfigurationGraph(navController, viewModel, uiState)
-        composable(BottomNavigationScreen.TravelHistoryScreen.route) { ProfileSetupScreen() }
+        historyGraph(navController, viewModel, uiState)
         composable(BottomNavigationScreen.ContactsScreen.route) { ProfileSetupScreen() }
-        composable(BottomNavigationScreen.ProfileSetupScreen.route) { PersonalInformationScreen() }
+        composable(BottomNavigationScreen.ProfileSetupScreen.route) { PersonalInformationScreen(userViewModel) }
     }
 }
 

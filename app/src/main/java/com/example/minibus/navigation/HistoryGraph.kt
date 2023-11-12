@@ -32,7 +32,6 @@ fun NavGraphBuilder.historyGraph(
         composable("detailsScreen/{userTravelHistoryJson}") { backStackEntry ->
 
 
-
             val encodedJson = backStackEntry.arguments?.getString("userTravelHistoryJson")
 
             // Раскодирование JSON строки
@@ -43,7 +42,7 @@ fun NavGraphBuilder.historyGraph(
                 JsonFormat.instance.decodeFromString<UserTravelHistory>(it)
             }
             Log.d("detailsScreenCOMPOSABLE", "wo $userTravelHistory")
-            TicketDetailsScreen(userTravelHistory)
+            TicketDetailsScreen(userTravelHistory, navController)
         }
     }
 }
