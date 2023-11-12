@@ -27,4 +27,8 @@
     <string name="payment">Оплата</string>
     <string name="checkout">Оформить заказ</string>
     <string name="car_number">Номер: </string>
+    <string name="error_format_phone">Неверный формат данных! (+375-xx-xxx-xx-xx)</string>
+    <string name="error_format_first_name">Введите свое имя правильно!</string>
+    <string name="error_format_last_name">Введите свою фамилию правильно!</string>
+    <string name="error_format_empty">Обязательно для заполнения!</string>
 </resources>

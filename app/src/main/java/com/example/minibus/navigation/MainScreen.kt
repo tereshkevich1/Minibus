@@ -1,30 +1,20 @@
 package com.example.minibus.navigation
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.Icon
-import androidx.compose.material.LocalContentColor
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -43,19 +33,19 @@ import com.example.minibus.vm.UserViewModel
 sealed class BottomNavigationScreen(
     val route: String,
     @StringRes val resourceId: Int,
-    val icon: ImageVector
+    val icon: Int
 ) {
     object RouteConfigurationScreen :
-        BottomNavigationScreen("Search", R.string.search, Icons.Filled.Search)
+        BottomNavigationScreen("Search", R.string.search, R.drawable.baseline_search_24)
 
     object TravelHistoryScreen :
-        BottomNavigationScreen("Story", R.string.story, Icons.Filled.List)
+        BottomNavigationScreen("Story", R.string.story, R.drawable.baseline_list_24)
 
     object ContactsScreen :
-        BottomNavigationScreen("Contacts", R.string.contacts, Icons.Filled.Call)
+        BottomNavigationScreen("Contacts", R.string.contacts, R.drawable.baseline_phone_24)
 
     object ProfileSetupScreen :
-        BottomNavigationScreen("Profile", R.string.profile, Icons.Filled.Person)
+        BottomNavigationScreen("Profile", R.string.profile, R.drawable.baseline_person_24)
 }
 
 
@@ -75,19 +65,24 @@ fun MainScreen(userViewModel: UserViewModel) {
 
 
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
-    val showTopBar = currentRoute != BottomNavigationScreen.RouteConfigurationScreen.route // Пример условия для показа TopBar
+    val showTopBar =
+        currentRoute != BottomNavigationScreen.RouteConfigurationScreen.route // Пример условия для показа TopBar
     val topBarTitle = getTitleForRoute(currentRoute)
 
     Scaffold(
         topBar = {
             if (showTopBar) {
                 TopAppBar(
-                    title = { Text(text = topBarTitle) },
+                    title = { Text(text = topBarTitle, fontSize = 16.sp) },
                     navigationIcon = {
                         IconButton(onClick = { navController.navigateUp() }) {
-                            Icon(Icons.Filled.ArrowBack, contentDescription = "Назад")
+                            Icon(
+                                painter = painterResource(R.drawable.baseline_arrow_back_24),
+                                contentDescription = "Назад"
+                            )
                         }
-                    }
+                    },
+                    modifier = Modifier.shadow(6.dp)
                 )
             }
         },
@@ -117,16 +112,31 @@ private fun BottomNavigationBar(
     navController: NavHostController,
     items: List<BottomNavigationScreen>
 ) {
-    BottomNavigation(backgroundColor = androidx.compose.material3.MaterialTheme.colorScheme.onSurface) {
+    NavigationBar(
+        modifier = Modifier
+            .height(60.dp)
+    ) {
         //
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         //достаем текущий экран
         val currentDestination = navBackStackEntry?.destination
         items.forEach { screen ->
-            BottomNavigationItem(
-                unselectedContentColor = LocalContentColor.current.copy(alpha = ContentAlpha.medium),
-                icon = { Icon(screen.icon, contentDescription = null) },
-                label = { Text(stringResource(screen.resourceId)) },
+            NavigationBarItem(
+                modifier = Modifier.offset(y = -8.dp),
+                icon = {
+                    Icon(
+                        painter = painterResource(id = screen.icon),
+                        contentDescription = null,
+                        modifier = Modifier.offset()
+                    )
+                },
+                label = {
+                    Text(
+                        stringResource(screen.resourceId),
+                        fontSize = 12.sp,
+                        modifier = Modifier.offset(y = 16.dp)
+                    )
+                },
                 selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                 onClick = {
                     navController.navigate(screen.route) {
@@ -156,7 +166,7 @@ private fun MainScreenNavigationConfigurations(
     uiState: State<TicketUiState>,
     userViewModel: UserViewModel
 
-    ) {
+) {
     NavHost(
         navController,
         startDestination = "option",
@@ -166,7 +176,11 @@ private fun MainScreenNavigationConfigurations(
         routeConfigurationGraph(navController, viewModel, uiState)
         historyGraph(navController, viewModel, uiState)
         composable(BottomNavigationScreen.ContactsScreen.route) { ProfileSetupScreen() }
-        composable(BottomNavigationScreen.ProfileSetupScreen.route) { PersonalInformationScreen(userViewModel) }
+        composable(BottomNavigationScreen.ProfileSetupScreen.route) {
+            PersonalInformationScreen(
+                userViewModel
+            )
+        }
     }
 }
 

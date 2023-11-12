@@ -1,20 +1,32 @@
 package com.example.minibus.screens
 
+import android.util.Log
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ElevatedButton
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -23,10 +35,12 @@ import com.example.minibus.dataStoreManager.DataStoreManager
 import com.example.minibus.ui.theme.MinibusTheme
 import com.example.minibus.vm.UserViewModel
 import com.example.minibus.vm.UserViewModelFactory
+import kotlinx.coroutines.delay
 
 @Composable
 fun PersonalInformationScreen(userViewModel: UserViewModel) {
 
+    val userState by userViewModel.userUiState.collectAsState()
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -37,41 +51,64 @@ fun PersonalInformationScreen(userViewModel: UserViewModel) {
 
             InputField(
                 title = stringResource(id = R.string.user_first_name),
-                text = userViewModel.firstName,
+                text = userState.firstName,
                 label = stringResource(id = R.string.input_first_name),
                 modifier = Modifier.padding(
                     bottom =
                     dimensionResource(id = R.dimen.padding_small)
                 ),
-                onValueChanged = { userViewModel.updateFirstName(it) }
+                onValueChanged = { userViewModel.updateFirstName(it) },
+                isTextEmpty = userState.firstNameIsEmpty,
+                errorText = userViewModel.errorFirstName
+
             )
+            Log.d("ResourcesTagpERSON","is ${userViewModel.errorPhone}")
 
             InputField(
                 title = stringResource(id = R.string.user_last_name),
-                text = userViewModel.lastName,
+                text = userState.lastName,
                 label = stringResource(id = R.string.input_last_name),
                 modifier = Modifier.padding(
                     bottom =
                     dimensionResource(id = R.dimen.padding_small)
                 ),
-                onValueChanged = { userViewModel.updateLastName(it) }
+                onValueChanged = { userViewModel.updateLastName(it) },
+                isTextEmpty = userState.lastNameIsEmpty,
+                errorText = userViewModel.errorLastName
             )
 
             InputField(
                 title = stringResource(id = R.string.user_phone_number),
-                text = userViewModel.phone,
+                text = userState.phone,
                 label = stringResource(id = R.string.input_phone_number),
                 modifier = Modifier.padding(
                     bottom =
                     dimensionResource(id = R.dimen.padding_small)
                 ),
-                onValueChanged = { userViewModel.updatePhone(it) }
+                onValueChanged = { userViewModel.updatePhone(it) },
+                isTextEmpty = userState.phoneIsEmpty,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                errorText = userViewModel.errorPhone
             )
+
+            Spacer(modifier = Modifier.weight(0.5f))
+
+
+            if (userViewModel.showNotification) {
+                TopNotification(
+                    message = "Данные успешно обновлены",
+                    visible = userViewModel.showNotification,
+                    onDismiss = { userViewModel.changeNotification(false) }
+                )
+            }
+
 
 
             Spacer(modifier = Modifier.weight(1f))
             ElevatedButton(
-                onClick = {  }, modifier = Modifier
+                onClick = {
+                    userViewModel.saveUser()
+                }, modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
             ) {
@@ -87,9 +124,13 @@ fun PersonalInformationScreen(userViewModel: UserViewModel) {
 fun InputField(
     title: String,
     text: String,
+    isTextEmpty: Boolean,
     label: String,
     modifier: Modifier,
-    onValueChanged: (String) -> Unit
+    onValueChanged: (String) -> Unit,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(),
+    errorText: Int
+
 ) {
 
     Column(modifier = modifier) {
@@ -97,17 +138,51 @@ fun InputField(
             text = title,
             modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_small))
         )
-        OutlinedTextField(
+        TextField(
             value = text,
             onValueChange = onValueChanged,
             modifier = Modifier.fillMaxWidth(),
+            isError = isTextEmpty,
             label = {
-                Text(
-                    text = label
-                )
-            })
+                Text(if (isTextEmpty) stringResource(errorText) else label)
+            },
+            placeholder = {
+                if (isTextEmpty) Text(label)
+            },
+            shape = RoundedCornerShape(
+                topStart = 16.dp,
+                topEnd = 16.dp
+            ),
+            keyboardOptions = keyboardOptions,
+            singleLine = true,
+        )
     }
 
+}
+
+@Composable
+fun TopNotification(message: String, visible: Boolean, onDismiss: () -> Unit) {
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.inversePrimary)
+    ) {
+        Text(
+            text = message,
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.align(Alignment.Center)
+        )
+    }
+
+    LaunchedEffect(visible) {
+        if (visible) {
+            delay(2000)
+            onDismiss()
+        }
+    }
 }
 
 @Composable

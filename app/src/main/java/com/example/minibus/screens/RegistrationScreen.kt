@@ -11,7 +11,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.minibus.dataStoreManager.DataStoreManager
-import com.example.minibus.models.User
 import com.example.minibus.ui.theme.MinibusTheme
 import com.example.minibus.vm.UserViewModel
 import com.example.minibus.vm.UserViewModelFactory
@@ -32,12 +31,12 @@ fun RegistrationScreenDarkPreview() {
         }
         LaunchedEffect(key1 = true){
             dataStoreManager.getUserData().collect{ user->
-                name = user.firstName
+               // name = user.firstName
             }
         }
-        val user = User("+375333733413","Алтsefай","Хорош")
+        //val user = User("+375333733413","Алтsefай","Хорош")
 
-        userViewModel.saveUserName(user)
+        //userViewModel.saveUser(user)
 
 
         Log.d("RegistrationScreenDarkPreview", name)

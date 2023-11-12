@@ -1,7 +1,12 @@
 package com.example.minibus.models
 
-data class User (
-    val phoneNumber: String,
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class User(
+    val id: Int,
     val firstName: String,
-    val lastName: String
+    val lastName: String,
+    val phoneNumber : String,
+    val role: Boolean
 )

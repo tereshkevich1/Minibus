@@ -62,7 +62,7 @@ fun TripHistoryScreen(navController: NavController) {
 
     Surface(modifier = Modifier.fillMaxSize()) {
 
-        Column {
+        Column(modifier = Modifier.padding(top = dimensionResource(R.dimen.padding_medium))) {
 
 
             SwitchPanel(
