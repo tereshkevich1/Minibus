@@ -24,11 +24,8 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,6 +46,7 @@ import com.example.minibus.models.UserTravelHistory
 import com.example.minibus.network.JsonFormat
 import com.example.minibus.ui.theme.MinibusTheme
 import com.example.minibus.vm.HistoryViewModel
+import com.example.minibus.vm.MinibusUiState
 import kotlinx.serialization.encodeToString
 import java.time.LocalDate
 
@@ -57,33 +55,48 @@ import java.time.LocalDate
 fun TripHistoryScreen(navController: NavController) {
 
     val historyViewModel: HistoryViewModel = viewModel()
-    val userTravelHistoryList by historyViewModel.userTravelHistoryList.collectAsState()
-    val isLoading by historyViewModel.isLoading.collectAsState()
 
-    Surface(modifier = Modifier.fillMaxSize()) {
-
-        Column(modifier = Modifier.padding(top = dimensionResource(R.dimen.padding_medium))) {
-
-
-            SwitchPanel(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        start = dimensionResource(id = R.dimen.padding_extra_small),
-                        end = dimensionResource(id = R.dimen.padding_extra_small),
-                        bottom = dimensionResource(id = R.dimen.padding_large_medium)
-                    )
+    SwitchPanel(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                start = dimensionResource(id = R.dimen.padding_extra_small),
+                end = dimensionResource(id = R.dimen.padding_extra_small),
+                bottom = dimensionResource(id = R.dimen.padding_large_medium)
             )
-            if (!isLoading) {
-                InformationLazyColumn(userTravelHistoryList, historyViewModel, navController)
-            } else {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(modifier = Modifier.size(44.dp))
+    )
+
+    Column(modifier = Modifier.padding(top = dimensionResource(R.dimen.padding_medium))) {
+
+        when (historyViewModel.tripHistoryUIState) {
+            is MinibusUiState.Success -> InformationLazyColumn(
+                (historyViewModel.tripHistoryUIState as MinibusUiState.Success<List<UserTravelHistory>>).data,
+                historyViewModel,
+                navController
+            )
+
+            is MinibusUiState.Loading -> Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(modifier = Modifier.size(44.dp))
+            }
+
+            is MinibusUiState.Error -> {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    ErrorScreen(
+                        modifier = Modifier.fillMaxSize(),
+                        (historyViewModel.tripHistoryUIState as MinibusUiState.Error).exception,
+                        tryAgainClick = {historyViewModel.loadUserTravelHistoryList()}
+                    )
                 }
             }
         }
     }
-
 }
 
 

@@ -3,6 +3,7 @@ package com.example.minibus.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -40,6 +41,7 @@ import com.example.minibus.R
 import com.example.minibus.models.City
 import com.example.minibus.ui.theme.MinibusTheme
 import com.example.minibus.vm.LocationViewModel
+import com.example.minibus.vm.MinibusUiState
 import com.example.minibus.vm.OrderViewModel
 
 
@@ -49,24 +51,38 @@ fun LocationSearchScreen(
     departure: Boolean
 ) {
     val locationViewModel: LocationViewModel = viewModel()
-    val cities = locationViewModel.getData()
 
-    val isLoading by rememberUpdatedState(locationViewModel.isLoading)
-
+    val locationUIState by rememberUpdatedState(locationViewModel.locationUIState)
     Surface(modifier = Modifier.fillMaxSize()) {
+        when (locationUIState) {
 
-        if (!isLoading) {
-            LocationsPanel(
-                cities, viewModel, navController,
+            is MinibusUiState.Success -> LocationsPanel(
+                (locationUIState as MinibusUiState.Success<List<City>>).data,
+                viewModel,
+                navController,
                 departure
             )
-        } else {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(modifier = Modifier.size(44.dp))
+
+            is MinibusUiState.Loading -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(modifier = Modifier.size(44.dp))
+                }
             }
 
-        }
+            is MinibusUiState.Error ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(dimensionResource(id = R.dimen.padding_medium))
+                ) {
+                    ErrorScreen(
 
+                        modifier = Modifier.fillMaxSize(),
+                        (locationUIState as MinibusUiState.Error).exception,
+                        tryAgainClick = { locationViewModel.loadData() }
+                    )
+                }
+        }
     }
 }
 

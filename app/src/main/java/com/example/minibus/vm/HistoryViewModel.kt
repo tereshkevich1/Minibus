@@ -1,33 +1,42 @@
 package com.example.minibus.vm
 
-import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.minibus.models.UserTravelHistory
 import com.example.minibus.network.MinibusApi
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.io.IOException
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 
 class HistoryViewModel : ViewModel() {
-
-    private val _userTravelHistoryList = MutableStateFlow<List<UserTravelHistory>>(emptyList())
-    val userTravelHistoryList = _userTravelHistoryList.asStateFlow()
-
-    private val _isLoading = MutableStateFlow(true)
-    val isLoading = _isLoading.asStateFlow()
+    var tripHistoryUIState by mutableStateOf<MinibusUiState<List<UserTravelHistory>>>(MinibusUiState.Loading)
 
     init {
         loadUserTravelHistoryList()
     }
 
-    private fun loadUserTravelHistoryList() {
+    fun loadUserTravelHistoryList() {
+        tripHistoryUIState = MinibusUiState.Loading
         viewModelScope.launch {
-            _userTravelHistoryList.value = MinibusApi.retrofitService.getUserTravelHistory(3)
-            Log.d("getUserTravelHistory", "${_userTravelHistoryList.value}")
-            _isLoading.value = false
+
+            tripHistoryUIState = try {
+
+                val userTravelHistoryList = MinibusApi.retrofitService.getUserTravelHistory(3)
+                MinibusUiState.Success(userTravelHistoryList)
+
+            } catch (e: IOException) {
+
+                MinibusUiState.Error(e)
+
+            } catch (e: HttpException) {
+                MinibusUiState.Error(e)
+            }
+
         }
     }
 

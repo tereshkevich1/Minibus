@@ -90,6 +90,7 @@ fun CustomSwitchButton(
             modifier = Modifier.fillMaxWidth(1f),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Spacer(modifier = Modifier.height(20.dp))
             Text(
                 text = text,
                 fontWeight = FontWeight.Bold,
@@ -100,7 +101,6 @@ fun CustomSwitchButton(
                 modifier = Modifier.fillMaxWidth(), thickness = 3.dp,
                 color = if (firstButtonActive) activeColor else passiveColor
             )
-
         }
     }
 }

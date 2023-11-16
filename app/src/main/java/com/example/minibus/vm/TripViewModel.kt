@@ -12,33 +12,37 @@ import androidx.lifecycle.viewModelScope
 import com.example.minibus.models.TripTime
 import com.example.minibus.network.MinibusApi
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.io.IOException
 
 class TripViewModel(startingLocationId: Int, finalLocationId: Int, departureDate: String) :
     ViewModel() {
 
-    private var trips: List<TripTime> by mutableStateOf(listOf())
-    var isLoading by mutableStateOf(true)
+
+    var tripUIState by mutableStateOf<MinibusUiState<List<TripTime>>>(MinibusUiState.Loading)
 
     init {
-        viewModelScope.launch {
-            trips = MinibusApi.retrofitService.getTrips(
-                startingLocationId,
-                finalLocationId,
-                departureDate
-            )
-            isLoading = false
-        }
+        loadData(startingLocationId, finalLocationId, departureDate)
     }
 
     fun loadData(startingLocationId: Int, finalLocationId: Int, departureDate: String) {
-        // Simulate loading data from a database
+        tripUIState = MinibusUiState.Loading
         viewModelScope.launch {
-            trips = MinibusApi.retrofitService.getTrips(
-                startingLocationId,
-                finalLocationId,
-                departureDate
-            )
-            isLoading = false
+
+            tripUIState = try {
+                val trips = MinibusApi.retrofitService.getTrips(
+                    startingLocationId,
+                    finalLocationId,
+                    departureDate
+                )
+                MinibusUiState.Success(trips)
+
+            } catch (e: IOException) {
+                MinibusUiState.Error(e)
+
+            } catch (e: HttpException) {
+                MinibusUiState.Error(e)
+            }
         }
     }
 
@@ -55,16 +59,21 @@ class TripViewModel(startingLocationId: Int, finalLocationId: Int, departureDate
         } else MaterialTheme.colorScheme.primary
     }
 
-    fun getDataTrips(): List<TripTime> = trips
+    fun getDataTrips(): List<TripTime> {
+        return if (tripUIState is MinibusUiState.Success<*>) {
+            (tripUIState as MinibusUiState.Success<List<TripTime>>).data
+        } else {
+            emptyList()
+        }
+    }
 
 }
-
-class MyViewModelFactory(
-    private val startingLocationId: Int,
-    private val finalLocationId: Int,
-    private val departureDate: String
-) :
-    ViewModelProvider.NewInstanceFactory() {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T =
-        TripViewModel(startingLocationId, finalLocationId, departureDate) as T
-}
+    class MyViewModelFactory(
+        private val startingLocationId: Int,
+        private val finalLocationId: Int,
+        private val departureDate: String
+    ) :
+        ViewModelProvider.NewInstanceFactory() {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T =
+            TripViewModel(startingLocationId, finalLocationId, departureDate) as T
+    }

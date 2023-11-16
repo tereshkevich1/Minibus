@@ -107,7 +107,7 @@ fun PersonalInformationScreen(userViewModel: UserViewModel) {
             Spacer(modifier = Modifier.weight(1f))
             ElevatedButton(
                 onClick = {
-                    userViewModel.saveUser()
+                    userViewModel.updateUser()
                 }, modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)

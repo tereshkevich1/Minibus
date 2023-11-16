@@ -140,7 +140,7 @@ class UserViewModel(private val dataStoreManager: DataStoreManager) : ViewModel(
         return !lastNameIsEmpty && !firstNameIsEmpty && !phoneIsEmpty
     }
 
-    fun saveUser() {
+    fun updateUser() {
         if (checkFields() && fieldIsUpdated) {
 
             changeNotification(true)

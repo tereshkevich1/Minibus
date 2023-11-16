@@ -9,11 +9,13 @@ import androidx.lifecycle.viewModelScope
 import com.example.minibus.models.City
 import com.example.minibus.network.MinibusApi
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.io.IOException
 
 
 class LocationViewModel : ViewModel() {
-    private var cityData: List<City> by mutableStateOf(listOf())
-    var isLoading by mutableStateOf(true)
+
+    var locationUIState by mutableStateOf<MinibusUiState<List<City>>>(MinibusUiState.Loading)
 
 
     init {
@@ -21,13 +23,25 @@ class LocationViewModel : ViewModel() {
         loadData()
     }
 
-    private fun loadData() {
-        // Simulate loading data from a database
+    fun loadData() {
+        locationUIState = MinibusUiState.Loading
         viewModelScope.launch {
-            cityData = MinibusApi.retrofitService.getPhotos()
-            isLoading = false
+
+            locationUIState = try {
+
+                val cityData = MinibusApi.retrofitService.getPhotos()
+                MinibusUiState.Success(cityData)
+
+            } catch (e: IOException) {
+
+                MinibusUiState.Error(e)
+
+            } catch (e: HttpException) {
+                MinibusUiState.Error(e)
+            }
+
         }
     }
 
-    fun getData(): List<City> = cityData
+    // fun getData(): List<City> = cityData
 }

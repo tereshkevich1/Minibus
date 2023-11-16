@@ -35,9 +35,9 @@ class DataStoreManager(private val context: Context) {
         .map { preferences ->
             return@map User(
                 preferences[PreferencesKeys.USER_ID]?.toIntOrNull() ?: 0,
-                preferences[PreferencesKeys.FIRST_NAME_KEY] ?: "и",
-                preferences[PreferencesKeys.LAST_NAME_KEY] ?: "ф",
-                preferences[PreferencesKeys.PHONE_KEY] ?: "н",
+                preferences[PreferencesKeys.FIRST_NAME_KEY] ?: "",
+                preferences[PreferencesKeys.LAST_NAME_KEY] ?: "",
+                preferences[PreferencesKeys.PHONE_KEY] ?: "",
                 false
             )
         }

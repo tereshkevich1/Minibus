@@ -18,13 +18,10 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,6 +38,7 @@ import com.example.minibus.R
 import com.example.minibus.models.TripTime
 import com.example.minibus.state_models.TicketUiState
 import com.example.minibus.ui.theme.MinibusTheme
+import com.example.minibus.vm.MinibusUiState
 import com.example.minibus.vm.MyViewModelFactory
 import com.example.minibus.vm.OrderViewModel
 import com.example.minibus.vm.TripViewModel
@@ -50,6 +48,7 @@ fun ResultSearchScreen(
     uiState: State<TicketUiState>, viewModel: OrderViewModel,
     navController: NavController
 ) {
+
     val tripViewModel: TripViewModel = viewModel(
         factory = MyViewModelFactory(
             uiState.value.departureCityId,
@@ -58,34 +57,46 @@ fun ResultSearchScreen(
         )
     )
 
-
-    val trips = tripViewModel.getDataTrips()
-
-    val isLoading by rememberUpdatedState(tripViewModel.isLoading)
-
-
-    Surface(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(dimensionResource(id = R.dimen.padding_medium))
-        ) {
-            TripStopsPanel(
-                { navController.navigate("selectionDeparturePoint") },
-                { navController.navigate("selectionArrivalPoint") },
-                uiState
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(dimensionResource(id = R.dimen.padding_medium))
+    ) {
+        TripStopsPanel(
+            { navController.navigate("selectionDeparturePoint") },
+            { navController.navigate("selectionArrivalPoint") },
+            uiState
+        )
+        when (tripViewModel.tripUIState) {
+            is MinibusUiState.Success -> ResultLazyColum(
+                (tripViewModel.tripUIState as MinibusUiState.Success<List<TripTime>>).data,
+                navController,
+                tripViewModel
             )
-            if (!isLoading) {
-                ResultLazyColum(trips, navController, tripViewModel)
-            } else {
+
+            is MinibusUiState.Loading -> {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(modifier = Modifier.size(44.dp))
                 }
+            }
 
+            is MinibusUiState.Error -> {
+                ErrorScreen(
+                    modifier = Modifier.fillMaxSize(),
+                    exception = (tripViewModel.tripUIState as MinibusUiState.Error).exception,
+                    tryAgainClick = {
+                        tripViewModel.loadData(
+                            uiState.value.departureCityId,
+                            uiState.value.arrivalCityId,
+                            uiState.value.departureDate.toString()
+                        )
+                    }
+                )
             }
         }
     }
 }
+
 
 @Composable
 fun ResultLazyColum(
