@@ -10,11 +10,14 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.minibus.R
 import com.example.minibus.dataStoreManager.DataStoreManager
+import com.example.minibus.network.MinibusApi
 import com.example.minibus.state_models.UserUiState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class UserViewModel(private val dataStoreManager: DataStoreManager) : ViewModel() {
 
@@ -25,6 +28,7 @@ class UserViewModel(private val dataStoreManager: DataStoreManager) : ViewModel(
     var errorPhone by mutableIntStateOf(0)
     var errorFirstName by mutableIntStateOf(0)
     var errorLastName by mutableIntStateOf(0)
+
 
     private var fieldIsUpdated = false
 
@@ -38,6 +42,7 @@ class UserViewModel(private val dataStoreManager: DataStoreManager) : ViewModel(
             dataStoreManager.getUserData().collect { user ->
                 _userUiState.update { current ->
                     current.copy(
+                        userId = user.id,
                         firstName = user.firstName,
                         lastName = user.lastName,
                         phone = if (user.phoneNumber.contains("+")) user.phoneNumber
@@ -140,29 +145,52 @@ class UserViewModel(private val dataStoreManager: DataStoreManager) : ViewModel(
         return !lastNameIsEmpty && !firstNameIsEmpty && !phoneIsEmpty
     }
 
+    // Make checkUpdate a suspend function and return a Boolean
+    private suspend fun checkUpdate(): Boolean {
+        return MinibusApi.retrofitService.updateUser(
+            userUiState.value.userId,
+            userUiState.value.firstName,
+            userUiState.value.lastName,
+            userUiState.value.phone
+        ).isSuccessful
+    }
+
     fun updateUser() {
         if (checkFields() && fieldIsUpdated) {
 
-            changeNotification(true)
-
             viewModelScope.launch {
-                dataStoreManager.saveUserData(
-                    userUiState.value.firstName,
-                    userUiState.value.lastName,
-                    userUiState.value.phone
-                )
+                // Call checkUpdate and wait for the result
+                val updateSuccess = checkUpdate()
+
+                // Only proceed if the update was successful
+                if (updateSuccess) {
+
+
+                    withContext(Dispatchers.Main) {
+                        changeNotification(true)
+                        Log.d("UpdateUser", "changeNotification called")
+                        fieldIsUpdated = false
+                    }
+
+                    _userUiState.update { current ->
+                        current.copy(
+                            lastNameIsEmpty = false,
+                            phoneIsEmpty = false,
+                            firstNameIsEmpty = false
+                        )
+                    }
+
+                    dataStoreManager.saveUserData(
+                        userUiState.value.firstName,
+                        userUiState.value.lastName,
+                        userUiState.value.phone
+                    )
+                }
             }
 
-            _userUiState.update { current ->
-                current.copy(
-                    lastNameIsEmpty = false,
-                    phoneIsEmpty = false,
-                    firstNameIsEmpty = false
-                )
-            }
-            fieldIsUpdated = false
         }
     }
+
 
     fun changeNotification(turn: Boolean) {
         showNotification = turn

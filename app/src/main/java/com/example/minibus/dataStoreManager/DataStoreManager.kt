@@ -34,7 +34,7 @@ class DataStoreManager(private val context: Context) {
     fun getUserData() = context.dataStore.data
         .map { preferences ->
             return@map User(
-                preferences[PreferencesKeys.USER_ID]?.toIntOrNull() ?: 0,
+                preferences[PreferencesKeys.USER_ID]?.toIntOrNull() ?: 1,
                 preferences[PreferencesKeys.FIRST_NAME_KEY] ?: "",
                 preferences[PreferencesKeys.LAST_NAME_KEY] ?: "",
                 preferences[PreferencesKeys.PHONE_KEY] ?: "",

@@ -16,8 +16,10 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import okhttp3.MediaType.Companion.toMediaType
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 import java.time.LocalDate
 import java.time.LocalTime
@@ -70,7 +72,7 @@ interface MinibusApiService {
     ): List<StopPoint>
 
     @GET("userHistory/{user_id}")
-    suspend fun  getUserTravelHistory(
+    suspend fun getUserTravelHistory(
         @Path("user_id") cityId: Int
     ): List<UserTravelHistory>
 
@@ -78,6 +80,14 @@ interface MinibusApiService {
     suspend fun getTransport(
         @Path("minibus_id") minibusId: Int
     ): Transport
+
+    @POST("user/{id}/{firstName}/{lastName}/{phoneNumber}/update")
+    suspend fun updateUser(
+        @Path("id") id: Int,
+        @Path("firstName") firstName: String,
+        @Path("lastName") lastName: String,
+        @Path("phoneNumber") phoneNumber: String,
+    ): Response<Void>
 
 
 }
