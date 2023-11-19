@@ -14,6 +14,7 @@ import com.example.minibus.screens.RouteConfigurationScreen
 import com.example.minibus.screens.StoppingPointsScreen
 import com.example.minibus.state_models.TicketUiState
 import com.example.minibus.vm.OrderViewModel
+import java.time.format.DateTimeFormatter
 
 fun NavGraphBuilder.routeConfigurationGraph(
     navController: NavController,
@@ -33,7 +34,7 @@ fun NavGraphBuilder.routeConfigurationGraph(
                 onShowCalendarClick = { viewModel.showCalendar() },
                 selection = viewModel.calendarSelection,
                 state = viewModel.calendarState,
-                dateText = uiState.value.departureDate.toString(),
+                dateText = uiState.value.departureDate.format(DateTimeFormatter.ofPattern("d MMMM")).toString(),
                 numberPassengersText = (uiState.value.numberChildrenSeats + uiState.value.numberAdultsSeats).toString(),
                 departureCity = uiState.value.departureCity,
                 arrivalCity = uiState.value.arrivalCity

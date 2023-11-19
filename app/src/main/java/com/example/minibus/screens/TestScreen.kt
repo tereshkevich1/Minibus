@@ -31,14 +31,23 @@ import com.example.minibus.ui.theme.MinibusTheme
 @Composable
 fun TestScreen() {
     Surface(modifier = Modifier.fillMaxSize()) {
-        SwitchPanel(modifier = Modifier.fillMaxWidth())
+        var firstButtonActive by rememberSaveable { mutableStateOf(true) }
+        SwitchPanel(
+            modifier = Modifier.fillMaxWidth(),
+            firstButtonActive,
+            changeActiveFutureButton = { firstButtonActive = true },
+            changeActiveArchiveButton = { firstButtonActive = false })
     }
 }
 
 @Composable
-fun SwitchPanel(modifier: Modifier) {
+fun SwitchPanel(
+    modifier: Modifier,
+    firstButtonActive: Boolean,
+    changeActiveFutureButton: () -> Unit,
+    changeActiveArchiveButton: () -> Unit
+) {
 
-    var firstButtonActive by rememberSaveable { mutableStateOf(true) }
 
     val activeColor = MaterialTheme.colorScheme.primary
 
@@ -52,7 +61,7 @@ fun SwitchPanel(modifier: Modifier) {
         CustomSwitchButton(
             activeColor,
             passiveColor,
-            { firstButtonActive = true },
+            changeActiveFutureButton,
             "Будущие",
             firstButtonActive,
             Modifier.weight(1f)
@@ -60,7 +69,7 @@ fun SwitchPanel(modifier: Modifier) {
         CustomSwitchButton(
             passiveColor,
             activeColor,
-            { firstButtonActive = false },
+            changeActiveArchiveButton,
             "Архив",
             firstButtonActive,
             Modifier.weight(1f)
@@ -184,6 +193,7 @@ fun TwoButtons() {
         secondButton()
     }
 }
+
 @Composable
 fun CustomButton() {
     Button(onClick = { /*TODO*/ }) {

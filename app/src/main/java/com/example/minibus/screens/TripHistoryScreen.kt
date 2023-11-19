@@ -26,6 +26,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,6 +51,7 @@ import com.example.minibus.network.JsonFormat
 import com.example.minibus.ui.theme.MinibusTheme
 import com.example.minibus.vm.HistoryViewModel
 import com.example.minibus.vm.MinibusUiState
+import com.example.minibus.vm.TripHistoryUiState
 import kotlinx.serialization.encodeToString
 import java.time.LocalDate
 
@@ -55,34 +60,45 @@ import java.time.LocalDate
 fun TripHistoryScreen(navController: NavController) {
 
     val historyViewModel: HistoryViewModel = viewModel()
+    var firstButtonActive by rememberSaveable { mutableStateOf(true) }
 
-    SwitchPanel(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                start = dimensionResource(id = R.dimen.padding_extra_small),
-                end = dimensionResource(id = R.dimen.padding_extra_small),
-                bottom = dimensionResource(id = R.dimen.padding_large_medium)
-            )
-    )
-
-    Column(modifier = Modifier.padding(top = dimensionResource(R.dimen.padding_medium))) {
+    Column {
+        SwitchPanel(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = dimensionResource(id = R.dimen.padding_extra_small),
+                    end = dimensionResource(id = R.dimen.padding_extra_small),
+                    bottom = dimensionResource(id = R.dimen.padding_large_medium)
+                ),
+            firstButtonActive,
+            changeActiveFutureButton = { firstButtonActive = true },
+            changeActiveArchiveButton = { firstButtonActive = false }
+        )
 
         when (historyViewModel.tripHistoryUIState) {
-            is MinibusUiState.Success -> InformationLazyColumn(
-                (historyViewModel.tripHistoryUIState as MinibusUiState.Success<List<UserTravelHistory>>).data,
-                historyViewModel,
-                navController
-            )
+            is TripHistoryUiState.Success -> if (firstButtonActive) {
+                InformationLazyColumn(
+                    (historyViewModel.tripHistoryUIState as TripHistoryUiState.Success<List<UserTravelHistory>>).futureTrips,
+                    historyViewModel,
+                    navController
+                )
+            } else {
+                InformationLazyColumn(
+                    (historyViewModel.tripHistoryUIState as TripHistoryUiState.Success<List<UserTravelHistory>>).pastTrips,
+                    historyViewModel,
+                    navController
+                )
+            }
 
-            is MinibusUiState.Loading -> Box(
+            is TripHistoryUiState.Loading -> Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(modifier = Modifier.size(44.dp))
             }
 
-            is MinibusUiState.Error -> {
+            is TripHistoryUiState.Error -> {
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.Center,
@@ -91,7 +107,7 @@ fun TripHistoryScreen(navController: NavController) {
                     ErrorScreen(
                         modifier = Modifier.fillMaxSize(),
                         (historyViewModel.tripHistoryUIState as MinibusUiState.Error).exception,
-                        tryAgainClick = {historyViewModel.loadUserTravelHistoryList()}
+                        tryAgainClick = { historyViewModel.loadUserTravelHistoryList() }
                     )
                 }
             }

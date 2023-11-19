@@ -75,7 +75,7 @@ interface MinibusApiService {
     suspend fun getUserTravelHistory(
         @Path("user_id") cityId: Int
     ): List<UserTravelHistory>
-
+    
     @GET("transport/{minibus_id}")
     suspend fun getTransport(
         @Path("minibus_id") minibusId: Int

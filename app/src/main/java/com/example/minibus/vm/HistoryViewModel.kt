@@ -14,31 +14,38 @@ import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 
 class HistoryViewModel : ViewModel() {
-    var tripHistoryUIState by mutableStateOf<MinibusUiState<List<UserTravelHistory>>>(MinibusUiState.Loading)
+    var tripHistoryUIState by mutableStateOf<TripHistoryUiState<List<UserTravelHistory>>>(
+        TripHistoryUiState.Loading
+    )
 
     init {
         loadUserTravelHistoryList()
     }
 
     fun loadUserTravelHistoryList() {
-        tripHistoryUIState = MinibusUiState.Loading
+        tripHistoryUIState = TripHistoryUiState.Loading
         viewModelScope.launch {
 
             tripHistoryUIState = try {
 
-                val userTravelHistoryList = MinibusApi.retrofitService.getUserTravelHistory(3)
-                MinibusUiState.Success(userTravelHistoryList)
+                val tripsList =  MinibusApi.retrofitService.getUserTravelHistory(3)
+
+                val futureTrips = tripsList.filter { it.order.status == 1 }
+                val pastTrips =  tripsList.filter { it.order.status == 2 }
+
+                TripHistoryUiState.Success(futureTrips, pastTrips)
 
             } catch (e: IOException) {
 
-                MinibusUiState.Error(e)
+                TripHistoryUiState.Error(e)
 
             } catch (e: HttpException) {
-                MinibusUiState.Error(e)
+                TripHistoryUiState.Error(e)
             }
 
         }
     }
+
 
     fun setDuration(startTime: LocalTime, endTime: LocalTime): String {
         val duration = if (startTime.isBefore(endTime)) {

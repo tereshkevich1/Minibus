@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -29,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -49,6 +51,8 @@ import com.example.minibus.vm.CheckoutViewModelFactory
 import com.example.minibus.vm.OrderViewModel
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 
 @Composable
@@ -97,14 +101,17 @@ fun OrderPanel(
 
         Title(stringResource(id = R.string.route))
 
+        val outputFormat = DateTimeFormatter.ofPattern("dd MMM", Locale("ru"))
+        val formatDate = uiState.value.departureDate.format(outputFormat).toString()
+
         InfoPanel(
             details.time.departureTime.toString(),
             details.time.arrivalTime.toString(),
             uiState.value.departureCity,
             uiState.value.arrivalCity,
-            "Станция метро 'Петровщина'",
-            "Автостанция Центральная, платформа 5",
-            uiState.value.departureDate.toString()
+            uiState.value.departurePoint?: "",
+            uiState.value.arrivalPoint?: "",
+            formatDate
         )
 
         Title(stringResource(id = R.string.transport))
@@ -137,10 +144,11 @@ fun OrderPanel(
 fun Title(title: String) {
     Text(
         text = title,
-        fontSize = 20.sp,
+        fontSize = 18.sp,
         modifier = Modifier.padding(
             bottom = dimensionResource(id = R.dimen.padding_small)
-        )
+        ),
+        fontWeight = FontWeight.SemiBold
     )
 }
 
@@ -148,25 +156,9 @@ fun Title(title: String) {
 fun TransportPanel(carName: String, carColor: String, carNumber: String) {
     Row(modifier = Modifier.fillMaxWidth()) {
 
-        /*
-        Box(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.secondary)
-                .height(30.dp)
-                .width(30.dp),
-            contentAlignment = Alignment.Center
-        ) {
-
-            Icon(
-                painter = painterResource(id = R.drawable.baseline_directions_bus_24),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.secondaryContainer
-            )
-        }*/
-
         Column {
-            Text(text = "$carColor $carName")
-            Text(text = stringResource(id = R.string.car_number) + " " + carNumber)
+            Text(text = "$carColor $carName", maxLines = 1, fontSize = 14.sp)
+            Text(text = stringResource(id = R.string.car_number) + " " + carNumber, fontSize = 14.sp)
         }
 
     }
@@ -175,7 +167,7 @@ fun TransportPanel(carName: String, carColor: String, carNumber: String) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                top = dimensionResource(id = R.dimen.padding_medium),
+                top = dimensionResource(id =R.dimen.padding_small),
                 bottom = dimensionResource(id = R.dimen.padding_small)
             )
     )
@@ -194,23 +186,23 @@ fun InfoPanel(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(140.dp)
+            .height(100.dp)
     ) {
 
-        Column(modifier = Modifier.weight(0.5f)) {
+        Column(modifier = Modifier.weight(0.7f)) {
             Text(text = departureTime)
-            Text(text = departureDate)
+            Text(text = departureDate, fontSize = 12.sp)
             Spacer(modifier = Modifier.weight(1f))
             Text(text = arrivalTime)
-            Text(text = departureDate)
+            Text(text = departureDate, fontSize = 12.sp)
         }
         LineWithCircles(Modifier.weight(0.4f))
         Column(modifier = Modifier.weight(2f)) {
             Text(text = departureCity)
-            Text(text = startPoint, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Spacer(modifier = Modifier.weight(1f))
+            Text(text = startPoint, maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 12.sp)
+            Spacer(modifier = Modifier.fillMaxHeight(0.37f))
             Text(text = arrivalCity)
-            Text(text = finalPoint, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(text = finalPoint, maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 12.sp)
         }
 
     }
@@ -218,7 +210,7 @@ fun InfoPanel(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                top = dimensionResource(id = R.dimen.padding_medium),
+                top = dimensionResource(id = R.dimen.padding_small),
                 bottom = dimensionResource(id = R.dimen.padding_small)
             )
     )
@@ -237,7 +229,7 @@ fun LineWithCircles(modifier: Modifier) {
         Divider(
             modifier = Modifier
                 .width(4.dp)
-                .weight(1f), color = MaterialTheme.colorScheme.primary
+                .weight(0.6f), color = MaterialTheme.colorScheme.primary
         )
         Box(
             modifier = Modifier
@@ -250,8 +242,8 @@ fun LineWithCircles(modifier: Modifier) {
 
 @Composable
 fun PaymentPanel(numberTickets: String, fullSum: String) {
-    Row(modifier = Modifier.fillMaxWidth()) {
-        Text(text = stringResource(id = R.string.number_of_tickets) + " " + numberTickets)
+    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
+        Text(text = stringResource(id = R.string.number_of_tickets) + " " + numberTickets,fontSize = 14.sp)
         Spacer(modifier = Modifier.weight(1f))
         Text(text = "$fullSum BYN")
     }

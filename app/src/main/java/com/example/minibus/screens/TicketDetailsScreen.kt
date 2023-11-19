@@ -38,6 +38,7 @@ fun TicketDetailsScreen(userTravelHistory: UserTravelHistory?, navController: Na
     if (userTravelHistory != null) {
         val ticketViewModel: TicketDetailsViewModel =
             viewModel(factory = TicketDetailsViewModelFactory(userTravelHistory.trip.minibusId))
+
         val transportState = ticketViewModel.bus.collectAsState()
         val isLoading by ticketViewModel.isLoading.collectAsState()
 

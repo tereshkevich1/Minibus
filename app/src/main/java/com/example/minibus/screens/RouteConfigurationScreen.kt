@@ -20,7 +20,6 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,12 +28,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -42,6 +36,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.minibus.R
 import com.example.minibus.ui.theme.MinibusTheme
@@ -69,7 +64,7 @@ fun RouteConfigurationScreen(
     val colors = if (isSystemInDarkTheme()) {
         ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.secondary,
-            contentColor = MaterialTheme.colorScheme.secondaryContainer
+            contentColor = MaterialTheme.colorScheme.background
         )
     } else {
         ButtonDefaults.buttonColors(
@@ -162,19 +157,11 @@ fun RouteConfigurationScreen(
                 )
             }
 
-            // add checkedValue in viewModel.uiState
-            var checkedValue by rememberSaveable {
-                mutableStateOf(true)
-            }
-            Row(verticalAlignment = CenterVertically) {
-                Checkbox(checked = checkedValue, onCheckedChange = { checkedValue = it })
-                Text("Отправить посылку")
-            }
-
             ElevatedButton(
                 onClick = { onFindTripsClick() }, modifier = Modifier
                     .fillMaxWidth()
-                    .height(68.dp),
+                    .height(80.dp)
+                    .padding (top = dimensionResource(id = R.dimen.padding_medium)),
                 elevation = ButtonDefaults.buttonElevation(6.dp)
             ) {
                 Text(text = stringResource(R.string.search))
@@ -214,6 +201,7 @@ fun DirectionButton(
             Text(
                 text = directionText,
                 modifier = Modifier,
+                fontSize = 16.sp
             )
         }
     }
@@ -237,17 +225,13 @@ fun TripOptionsButton(
         elevation = ButtonDefaults.buttonElevation(6.dp),
         colors = colors
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Text(
-                text = title,
-                modifier = Modifier,
-            )
+        Row(verticalAlignment = Alignment.CenterVertically) {
 
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Text(text = text)
-                Spacer(modifier = Modifier.weight(1f))
-                Image(imageVector = imageVector, contentDescription = "")
-            }
+
+            Text(text = text, fontSize = 16.sp)
+            Spacer(modifier = Modifier.weight(1f))
+
+            Image(imageVector = imageVector, contentDescription = "")
         }
     }
 
