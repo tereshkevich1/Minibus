@@ -1,5 +1,6 @@
 package com.example.minibus.vm
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -28,7 +29,7 @@ class HistoryViewModel : ViewModel() {
 
             tripHistoryUIState = try {
 
-                val tripsList =  MinibusApi.retrofitService.getUserTravelHistory(3)
+                val tripsList =  MinibusApi.retrofitService.getUserTravelHistory(4)
 
                 val futureTrips = tripsList.filter { it.order.status == 1 }
                 val pastTrips =  tripsList.filter { it.order.status == 2 }
@@ -37,10 +38,13 @@ class HistoryViewModel : ViewModel() {
 
             } catch (e: IOException) {
 
+                Log.d("whattt", "$e")
                 TripHistoryUiState.Error(e)
 
             } catch (e: HttpException) {
+                Log.d("whattt", "$e")
                 TripHistoryUiState.Error(e)
+
             }
 
         }

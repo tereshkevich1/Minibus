@@ -26,6 +26,12 @@ class TicketDetailsViewModel(minibusId: Int) : ViewModel() {
             _isLoading.value = false
         }
     }
+
+    fun deleteOrder(orderId: Int) {
+        viewModelScope.launch {
+            MinibusApi.retrofitService.deleteOrder(orderId)
+        }
+    }
 }
 
 class TicketDetailsViewModelFactory(private val minibusId: Int) :

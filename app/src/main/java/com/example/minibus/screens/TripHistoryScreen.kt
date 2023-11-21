@@ -50,7 +50,6 @@ import com.example.minibus.models.UserTravelHistory
 import com.example.minibus.network.JsonFormat
 import com.example.minibus.ui.theme.MinibusTheme
 import com.example.minibus.vm.HistoryViewModel
-import com.example.minibus.vm.MinibusUiState
 import com.example.minibus.vm.TripHistoryUiState
 import kotlinx.serialization.encodeToString
 import java.time.LocalDate
@@ -105,8 +104,13 @@ fun TripHistoryScreen(navController: NavController) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     ErrorScreen(
-                        modifier = Modifier.fillMaxSize(),
-                        (historyViewModel.tripHistoryUIState as MinibusUiState.Error).exception,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(
+                                start = dimensionResource(id = R.dimen.padding_medium),
+                                end = dimensionResource(id = R.dimen.padding_medium)
+                            ),
+                        (historyViewModel.tripHistoryUIState as TripHistoryUiState.Error).exception,
                         tryAgainClick = { historyViewModel.loadUserTravelHistoryList() }
                     )
                 }

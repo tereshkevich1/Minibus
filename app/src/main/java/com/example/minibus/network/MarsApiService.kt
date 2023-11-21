@@ -25,7 +25,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 private const val BASE_URL =
-    "http://192.168.100.3:8080"
+    "http://192.168.100.2:8080"
 
 /**
  * Use the Retrofit builder to build a retrofit object using a kotlinx.serialization converter
@@ -87,6 +87,12 @@ interface MinibusApiService {
         @Path("firstName") firstName: String,
         @Path("lastName") lastName: String,
         @Path("phoneNumber") phoneNumber: String,
+    ): Response<Void>
+
+
+    @POST("order/{id}/delete")
+    suspend fun deleteOrder(
+        @Path("id") orderId: Int,
     ): Response<Void>
 
 

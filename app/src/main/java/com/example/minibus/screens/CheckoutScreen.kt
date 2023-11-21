@@ -101,7 +101,7 @@ fun OrderPanel(
 
         Title(stringResource(id = R.string.route))
 
-        val outputFormat = DateTimeFormatter.ofPattern("dd MMM", Locale("ru"))
+        val outputFormat = DateTimeFormatter.ofPattern("d MMM", Locale("ru"))
         val formatDate = uiState.value.departureDate.format(outputFormat).toString()
 
         InfoPanel(
