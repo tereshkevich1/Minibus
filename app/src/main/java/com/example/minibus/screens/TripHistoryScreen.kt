@@ -53,6 +53,7 @@ import com.example.minibus.vm.HistoryViewModel
 import com.example.minibus.vm.TripHistoryUiState
 import kotlinx.serialization.encodeToString
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 
 @Composable
@@ -317,7 +318,7 @@ fun AdditionalInformationRow(departureDate: LocalDate, price: Int, numberSeats: 
     ) {
         CardTripOptionInformation(
             painterResource(id = R.drawable.baseline_calendar_month_24),
-            departureDate.toString()
+            departureDate.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")).toString()
         )
         CardTripOptionInformation(
             painterResource(id = R.drawable.baseline_monetization_on_24),

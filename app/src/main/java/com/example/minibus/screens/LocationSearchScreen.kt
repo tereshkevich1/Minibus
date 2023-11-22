@@ -57,7 +57,7 @@ fun LocationSearchScreen(
         when (locationUIState) {
 
             is MinibusUiState.Success -> LocationsPanel(
-                (locationUIState as MinibusUiState.Success<List<City>>).data,
+                (locationUIState as MinibusUiState.Success<MutableList<City>>).data,
                 viewModel,
                 navController,
                 departure

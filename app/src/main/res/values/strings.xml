@@ -39,4 +39,8 @@
     <string name="cancel_order_alert_dialog">Отмена заказа</string>
     <string name="cancel_order_ask">Вы действительно хотите отменить заказ?</string>
     <string name="cancel">Назад</string>
+    <string name="return_trip">Оформить обратную поездку?</string>
+    <string name="refusal">Нет</string>
+    <string name="agreement">Да, оформляем</string>
+    <string name="success_order">Заказ оформлен</string>
 </resources>

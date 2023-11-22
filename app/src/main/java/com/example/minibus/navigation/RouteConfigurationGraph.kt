@@ -31,11 +31,12 @@ fun NavGraphBuilder.routeConfigurationGraph(
                 onDepartureSelectionClick = { navController.navigate("selectionDeparture") },
                 onArrivalSelectionClick = { navController.navigate("selectionArrival") },
                 onFindTripsClick = { navController.navigate("resultSearchScreen") },
+                changeDirectionClick = {viewModel.changeDirections()},
                 onShowCalendarClick = { viewModel.showCalendar() },
                 selection = viewModel.calendarSelection,
                 state = viewModel.calendarState,
                 dateText = uiState.value.departureDate.format(DateTimeFormatter.ofPattern("d MMMM")).toString(),
-                numberPassengersText = (uiState.value.numberChildrenSeats + uiState.value.numberAdultsSeats).toString(),
+                numberPassengers = uiState.value.numberChildrenSeats + uiState.value.numberAdultsSeats,
                 departureCity = uiState.value.departureCity,
                 arrivalCity = uiState.value.arrivalCity
             )

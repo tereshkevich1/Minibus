@@ -14,21 +14,30 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -67,9 +76,25 @@ fun CheckoutScreen(
     val details = checkoutViewModel.getData()
     val isLoading by rememberUpdatedState(checkoutViewModel.isLoading)
 
+    var openDialog by remember { mutableStateOf(false) }
+
+    when {
+        openDialog -> {
+            successfulOrderAlertDialog(onDismissRequest = { openDialog = false },
+                onConfirmation = { openDialog = false },
+                onDismissButtonClick = { openDialog = false })
+        }
+
+    }
+
     Surface(modifier = Modifier.fillMaxSize()) {
         if (!isLoading && details != null) {
-            OrderPanel(uiState, orderViewModel, navController, details)
+            OrderPanel(
+                uiState,
+                orderViewModel,
+                navController,
+                details,
+                onOrderButtonClick = { openDialog = true })
         } else {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(modifier = Modifier.size(44.dp))
@@ -84,7 +109,8 @@ fun OrderPanel(
     uiState: State<TicketUiState>,
     orderViewModel: OrderViewModel,
     navController: NavController,
-    details: Details
+    details: Details,
+    onOrderButtonClick: () -> Unit
 ) {
     val scrollState = rememberScrollState()
     Column(
@@ -109,14 +135,16 @@ fun OrderPanel(
             details.time.arrivalTime.toString(),
             uiState.value.departureCity,
             uiState.value.arrivalCity,
-            uiState.value.departurePoint?: "",
-            uiState.value.arrivalPoint?: "",
+            uiState.value.departurePoint ?: "",
+            uiState.value.arrivalPoint ?: "",
             formatDate
         )
 
         Title(stringResource(id = R.string.transport))
 
-        TransportPanel(details.busInfo.brandModel, details.minibus.carColor, details.minibus.carNumber)
+        TransportPanel(
+            details.busInfo.brandModel, details.minibus.carColor, details.minibus.carNumber
+        )
 
         Title(stringResource(id = R.string.payment))
 
@@ -127,8 +155,9 @@ fun OrderPanel(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        ElevatedButton(
-            onClick = { }, modifier = Modifier
+        Button(
+            onClick = { onOrderButtonClick() },
+            modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp)
                 .padding(bottom = dimensionResource(id = R.dimen.padding_small))
@@ -143,12 +172,9 @@ fun OrderPanel(
 @Composable
 fun Title(title: String) {
     Text(
-        text = title,
-        fontSize = 18.sp,
-        modifier = Modifier.padding(
+        text = title, fontSize = 18.sp, modifier = Modifier.padding(
             bottom = dimensionResource(id = R.dimen.padding_small)
-        ),
-        fontWeight = FontWeight.SemiBold
+        ), fontWeight = FontWeight.SemiBold
     )
 }
 
@@ -158,7 +184,9 @@ fun TransportPanel(carName: String, carColor: String, carNumber: String) {
 
         Column {
             Text(text = "$carColor $carName", maxLines = 1, fontSize = 14.sp)
-            Text(text = stringResource(id = R.string.car_number) + " " + carNumber, fontSize = 14.sp)
+            Text(
+                text = stringResource(id = R.string.car_number) + " " + carNumber, fontSize = 14.sp
+            )
         }
 
     }
@@ -167,7 +195,7 @@ fun TransportPanel(carName: String, carColor: String, carNumber: String) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                top = dimensionResource(id =R.dimen.padding_small),
+                top = dimensionResource(id = R.dimen.padding_small),
                 bottom = dimensionResource(id = R.dimen.padding_small)
             )
     )
@@ -199,10 +227,14 @@ fun InfoPanel(
         LineWithCircles(Modifier.weight(0.4f))
         Column(modifier = Modifier.weight(2f)) {
             Text(text = departureCity)
-            Text(text = startPoint, maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 12.sp)
+            Text(
+                text = startPoint, maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 12.sp
+            )
             Spacer(modifier = Modifier.fillMaxHeight(0.37f))
             Text(text = arrivalCity)
-            Text(text = finalPoint, maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 12.sp)
+            Text(
+                text = finalPoint, maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 12.sp
+            )
         }
 
     }
@@ -243,13 +275,80 @@ fun LineWithCircles(modifier: Modifier) {
 @Composable
 fun PaymentPanel(numberTickets: String, fullSum: String) {
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
-        Text(text = stringResource(id = R.string.number_of_tickets) + " " + numberTickets,fontSize = 14.sp)
+        Text(
+            text = stringResource(id = R.string.number_of_tickets) + " " + numberTickets,
+            fontSize = 14.sp
+        )
         Spacer(modifier = Modifier.weight(1f))
         Text(text = "$fullSum BYN")
     }
 
 }
 
+@Composable
+fun successfulOrderAlertDialog(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    onDismissButtonClick: () -> Unit
+) {
+    val successColor: Color = MaterialTheme.colorScheme.primary
+    val textButtonColor: Color = MaterialTheme.colorScheme.outline
+    AlertDialog(
+
+        shape = RoundedCornerShape(10.dp),
+        modifier = Modifier,
+        onDismissRequest = { onDismissRequest() },
+        confirmButton = {
+            TextButton(onClick = { onConfirmation() }) {
+                Text(
+                    text = stringResource(id = R.string.agreement),
+                    color = textButtonColor
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { onDismissButtonClick() }) {
+                Text(
+                    text = stringResource(id = R.string.refusal),
+                    color = textButtonColor
+                )
+            }
+        },
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+
+                Text(
+                    text = stringResource(id = R.string.success_order), modifier = Modifier.padding(
+                        end = dimensionResource(
+                            id = R.dimen.padding_medium
+                        )
+                    ),
+                    color = successColor
+                )
+
+
+                Icon(
+                    painter = painterResource(id = R.drawable.outline_check_circle_outline_24),
+                    contentDescription = null,
+                    Modifier.size(30.dp),
+                    tint = successColor
+                )
+            }
+
+        },
+        text = { Text(text = stringResource(id = R.string.return_trip)) })
+}
+
+
+@Composable
+@Preview
+fun AlertDialogPreview() {
+    MinibusTheme(useDarkTheme = true) {
+        successfulOrderAlertDialog(onDismissRequest = { },
+            onConfirmation = { },
+            onDismissButtonClick = { })
+    }
+}
 
 @Composable
 @Preview
@@ -257,14 +356,14 @@ fun CheckoutScreenDarkPreview() {
     val viewModel: OrderViewModel = viewModel()
     val uiState = viewModel.uiState.collectAsState()
     val navController = rememberNavController()
-    val bus = Bus(1,"AB-1234",1,2009,"Зеленый")
+    val bus = Bus(1, "AB-1234", 1, 2009, "Зеленый")
     val time = Time(1, LocalTime.MIDNIGHT, LocalTime.NOON)
-    val car = Car(1,"Mercedes Sprinter",15)
-    val trip = Trip(1,1,1,1,1,1,1, LocalDate.now())
-    val details = Details(trip,bus,time,car)
+    val car = Car(1, "Mercedes Sprinter", 15)
+    val trip = Trip(1, 1, 1, 1, 1, 1, 1, LocalDate.now())
+    val details = Details(trip, bus, time, car)
     MinibusTheme(useDarkTheme = true) {
         Surface(modifier = Modifier.fillMaxSize()) {
-            OrderPanel(uiState, viewModel, navController, details)
+            OrderPanel(uiState, viewModel, navController, details, {})
         }
 
     }
@@ -276,14 +375,14 @@ fun CheckoutScreenLightPreview() {
     val viewModel: OrderViewModel = viewModel()
     val uiState = viewModel.uiState.collectAsState()
     val navController = rememberNavController()
-    val bus = Bus(1,"AB-1234",1,2009,"Зеленый")
+    val bus = Bus(1, "AB-1234", 1, 2009, "Зеленый")
     val time = Time(1, LocalTime.MIDNIGHT, LocalTime.NOON)
-    val car = Car(1,"Mercedes Sprinter",15)
-    val trip = Trip(1,1,1,1,1,1,1, LocalDate.now())
-    val details = Details(trip,bus,time,car)
+    val car = Car(1, "Mercedes Sprinter", 15)
+    val trip = Trip(1, 1, 1, 1, 1, 1, 1, LocalDate.now())
+    val details = Details(trip, bus, time, car)
     MinibusTheme(useDarkTheme = false) {
         Surface(modifier = Modifier.fillMaxSize()) {
-            OrderPanel(uiState, viewModel, navController, details)
+            OrderPanel(uiState, viewModel, navController, details, {})
         }
 
     }

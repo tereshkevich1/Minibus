@@ -1,5 +1,6 @@
 package com.example.minibus.vm
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.minibus.models.City
 import com.example.minibus.models.StopPoint
@@ -29,22 +30,54 @@ class OrderViewModel : ViewModel() {
     }
     //_
 
+    fun changeDirections() {
+        _uiState.update { currentState ->
+            currentState.copy(
+                departureCity = currentState.arrivalCity,
+                departureCityId = currentState.arrivalCityId,
+                arrivalCityId = currentState.departureCityId,
+                arrivalCity = currentState.departureCity
+            )
+        }
+    }
+
+
     // 4fun for AddPassengersScreen
     fun increaseNumberAdultsSeats() {
-        val updatedNumber = uiState.value.numberAdultsSeats.plus(1)
-        _uiState.update { currentState -> currentState.copy(numberAdultsSeats = updatedNumber) }
+        if (uiState.value.numberAdultsSeats + uiState.value.numberChildrenSeats < 3) {
+            _uiState.update { currentState ->
+                currentState.copy(
+                    numberAdultsSeats = currentState.numberAdultsSeats.plus(
+                        1
+                    )
+                )
+            }
+        }
     }
 
     fun decreaseNumberAdultsSeats() {
         val updatedNumber = uiState.value.numberAdultsSeats.minus(1)
         if (updatedNumber >= 1) {
-            _uiState.update { currentState -> currentState.copy(numberAdultsSeats = updatedNumber) }
+            _uiState.update { currentState ->
+                currentState.copy(
+                    numberAdultsSeats = currentState.numberAdultsSeats.minus(
+                        1
+                    )
+                )
+            }
         }
     }
 
     fun increaseNumberChildrenSeats() {
-        val updatedNumber = uiState.value.numberChildrenSeats.plus(1)
-        _uiState.update { currentState -> currentState.copy(numberChildrenSeats = updatedNumber) }
+        if (uiState.value.numberAdultsSeats + uiState.value.numberChildrenSeats < 3) {
+            _uiState.update { currentState ->
+                currentState.copy(
+                    numberChildrenSeats = currentState.numberChildrenSeats.plus(
+                        1
+                    )
+                )
+            }
+        }
     }
 
     fun decreaseNumberChildrenSeats() {
@@ -56,20 +89,44 @@ class OrderViewModel : ViewModel() {
     //_
 
     fun setDepartureCity(departureCity: City) {
-        _uiState.update { currentState ->
-            currentState.copy(
-                departureCity = departureCity.name,
-                departureCityId = departureCity.id
-            )
+        Log.d("setDepartureCity","${departureCity.id} & ${_uiState.value.arrivalCityId}")
+        if (departureCity.id == _uiState.value.arrivalCityId) {
+            _uiState.update { currentState ->
+                currentState.copy(
+                    departureCity = departureCity.name,
+                    departureCityId = departureCity.id,
+                    arrivalCity = currentState.departureCity,
+                    arrivalCityId = currentState.departureCityId
+                )
+            }
+        } else {
+            _uiState.update { currentState ->
+                currentState.copy(
+                    departureCity = departureCity.name,
+                    departureCityId = departureCity.id
+                )
+            }
         }
+
     }
 
     fun setArrivalCity(arrivalCity: City) {
-        _uiState.update { currentState ->
-            currentState.copy(
-                arrivalCity = arrivalCity.name,
-                arrivalCityId = arrivalCity.id
-            )
+        if (arrivalCity.id == _uiState.value.departureCityId) {
+            _uiState.update { currentState ->
+                currentState.copy(
+                    arrivalCity = arrivalCity.name,
+                    arrivalCityId = arrivalCity.id,
+                    departureCity = currentState.arrivalCity,
+                    departureCityId = currentState.arrivalCityId
+                )
+            }
+        } else {
+            _uiState.update { currentState ->
+                currentState.copy(
+                    arrivalCity = arrivalCity.name,
+                    arrivalCityId = arrivalCity.id
+                )
+            }
         }
     }
 

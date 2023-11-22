@@ -5,5 +5,6 @@
     <dimen name="padding_less_medium">12dp</dimen>
     <dimen name="padding_medium">16dp</dimen>
     <dimen name="padding_large_medium">24dp</dimen>
+    <dimen name="large">48dp</dimen>
     <dimen name="image_size">64dp</dimen>
 </resources>

@@ -49,7 +49,7 @@ fun SwitchPanel(
 ) {
 
 
-    val activeColor = MaterialTheme.colorScheme.primary
+    val activeColor = MaterialTheme.colorScheme.tertiary
 
     val passiveColor = Color.LightGray
 
