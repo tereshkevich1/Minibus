@@ -47,9 +47,11 @@ import com.example.minibus.vm.OrderViewModel
 
 @Composable
 fun LocationSearchScreen(
-    viewModel: OrderViewModel, navController: NavController,
+    viewModel: OrderViewModel,
+    navController: NavController,
     departure: Boolean
 ) {
+
     val locationViewModel: LocationViewModel = viewModel()
 
     val locationUIState by rememberUpdatedState(locationViewModel.locationUIState)
@@ -91,7 +93,7 @@ fun LocationsPanel(
     cities: List<City>, viewModel: OrderViewModel, navController: NavController,
     departure: Boolean
 ) {
-    LazyColumn() {
+    LazyColumn {
         items(cities) { item ->
             LocationItem(location = item.name, setLocationClick = {
                 if (departure) {

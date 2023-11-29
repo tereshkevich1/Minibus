@@ -21,6 +21,15 @@ class TripViewModel(startingLocationId: Int, finalLocationId: Int, departureDate
 
     var tripUIState by mutableStateOf<MinibusUiState<List<TripTime>>>(MinibusUiState.Loading)
 
+    var isError by mutableStateOf(false)
+
+    fun disableIsError(){
+        isError = false
+    }
+    fun enableIsError(){
+        isError = true
+    }
+
     init {
         loadData(startingLocationId, finalLocationId, departureDate)
     }
@@ -47,16 +56,18 @@ class TripViewModel(startingLocationId: Int, finalLocationId: Int, departureDate
     }
 
     fun printNumberSeats(numberSeats: Int): String {
-        return if (numberSeats <= 5) {
-            "$numberSeats "
-        } else "5+"
+        return if (numberSeats == 0) {
+            "нет мест "
+        } else if (numberSeats <= 5) "$numberSeats "
+        else "5+"
     }
 
     @Composable
     fun printColorSeats(numberSeats: Int): Color {
-        return if (numberSeats <= 5) {
+        return if (numberSeats in 1..5) {
             MaterialTheme.colorScheme.error
-        } else MaterialTheme.colorScheme.primary
+        } else if (numberSeats > 5) MaterialTheme.colorScheme.primary
+        else MaterialTheme.colorScheme.outline
     }
 
     fun getDataTrips(): List<TripTime> {

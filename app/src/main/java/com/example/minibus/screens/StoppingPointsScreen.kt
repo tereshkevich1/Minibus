@@ -16,6 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.minibus.models.StopPoint
 import com.example.minibus.state_models.TicketUiState
 import com.example.minibus.ui.theme.MinibusTheme
@@ -28,7 +30,8 @@ import com.example.minibus.vm.StoppingPointsViewModelFactory
 fun StoppingPointsScreen(
     uiState: State<TicketUiState>,
     departurePoint: Boolean,
-    viewModel: OrderViewModel
+    viewModel: OrderViewModel,
+    navController: NavController
 ) {
 
     val stoppingPointsViewModel: StoppingPointsViewModel = if (departurePoint) {
@@ -52,7 +55,10 @@ fun StoppingPointsScreen(
             items((stoppingPointsViewModel.stoppingPointsUIState as MinibusUiState.Success<List<StopPoint>>).data) { item ->
                 LocationItem(
                     location = item.name,
-                    setLocationClick = { viewModel.changeStoppingPoint(departurePoint, item) }
+                    setLocationClick = {
+                        viewModel.changeStoppingPoint(departurePoint, item)
+                        navController.popBackStack()
+                    }
                 )
             }
         }
@@ -82,6 +88,6 @@ fun StoppingPointsDarkScreen() {
     MinibusTheme(useDarkTheme = true) {
         val viewModel: OrderViewModel = viewModel()
         val uiState = viewModel.uiState.collectAsState()
-        StoppingPointsScreen(uiState, true, viewModel)
+        StoppingPointsScreen(uiState, true, viewModel, navController = rememberNavController())
     }
 }

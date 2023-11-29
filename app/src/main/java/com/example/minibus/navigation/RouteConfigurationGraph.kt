@@ -12,6 +12,7 @@ import com.example.minibus.screens.LocationSearchScreen
 import com.example.minibus.screens.ResultSearchScreen
 import com.example.minibus.screens.RouteConfigurationScreen
 import com.example.minibus.screens.StoppingPointsScreen
+import com.example.minibus.snackbarClasses.SnackbarDelegate
 import com.example.minibus.state_models.TicketUiState
 import com.example.minibus.vm.OrderViewModel
 import java.time.format.DateTimeFormatter
@@ -20,6 +21,7 @@ fun NavGraphBuilder.routeConfigurationGraph(
     navController: NavController,
     viewModel: OrderViewModel,
     uiState: State<TicketUiState>,
+    snackbarDelegate: SnackbarDelegate
 ) {
     navigation(
         startDestination = BottomNavigationScreen.RouteConfigurationScreen.route,
@@ -31,11 +33,12 @@ fun NavGraphBuilder.routeConfigurationGraph(
                 onDepartureSelectionClick = { navController.navigate("selectionDeparture") },
                 onArrivalSelectionClick = { navController.navigate("selectionArrival") },
                 onFindTripsClick = { navController.navigate("resultSearchScreen") },
-                changeDirectionClick = {viewModel.changeDirections()},
+                changeDirectionClick = { viewModel.changeDirections() },
                 onShowCalendarClick = { viewModel.showCalendar() },
                 selection = viewModel.calendarSelection,
                 state = viewModel.calendarState,
-                dateText = uiState.value.departureDate.format(DateTimeFormatter.ofPattern("d MMMM")).toString(),
+                dateText = uiState.value.departureDate.format(DateTimeFormatter.ofPattern("d MMMM"))
+                    .toString(),
                 numberPassengers = uiState.value.numberChildrenSeats + uiState.value.numberAdultsSeats,
                 departureCity = uiState.value.departureCity,
                 arrivalCity = uiState.value.arrivalCity
@@ -61,7 +64,7 @@ fun NavGraphBuilder.routeConfigurationGraph(
         }
         composable("resultSearchScreen") {
 
-            ResultSearchScreen(uiState, viewModel, navController)
+            ResultSearchScreen(uiState, viewModel, navController, snackbarDelegate)
         }
 
         composable("checkoutScreen/{tripId}") { navBackStackEntry ->
@@ -76,11 +79,11 @@ fun NavGraphBuilder.routeConfigurationGraph(
         }
 
         composable("selectionDeparturePoint") {
-            StoppingPointsScreen(uiState, true, viewModel)
+            StoppingPointsScreen(uiState, true, viewModel, navController)
         }
 
         composable("selectionArrivalPoint") {
-            StoppingPointsScreen(uiState, false, viewModel)
+            StoppingPointsScreen(uiState, false, viewModel, navController)
         }
     }
 }

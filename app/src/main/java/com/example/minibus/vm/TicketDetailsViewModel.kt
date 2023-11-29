@@ -27,6 +27,8 @@ class TicketDetailsViewModel(minibusId: Int) : ViewModel() {
         }
     }
 
+
+    //обработать ошибки
     fun deleteOrder(orderId: Int) {
         viewModelScope.launch {
             MinibusApi.retrofitService.deleteOrder(orderId)

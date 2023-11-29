@@ -8,12 +8,16 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.minibus.models.Details
 import com.example.minibus.network.MinibusApi
+import com.example.minibus.state_models.ButtonUiState
+import com.example.minibus.state_models.ButtonUiState.Defolt
 import kotlinx.coroutines.launch
 
 class CheckoutViewModel(tripId: Int) : ViewModel() {
     private var orderDetailsObject: Details? by mutableStateOf(null)
 
     var isLoading by mutableStateOf(true)
+
+    var buttonState: ButtonUiState by mutableStateOf(Defolt)
 
     init {
         viewModelScope.launch {
@@ -33,6 +37,19 @@ class CheckoutViewModel(tripId: Int) : ViewModel() {
                  time = MinibusApi.retrofitService.getDriverById(trip.timeId)
              }
              isLoading = false*/
+        }
+    }
+    /*
+    userId: Int,
+    tripId: Int,
+    numberTickets: Int,
+    status: Int,
+    departureStopId: Int,
+    arrivalStopId: Int*/
+    fun addOrder(){
+        buttonState = ButtonUiState.Loading
+        viewModelScope.launch {
+
         }
     }
 

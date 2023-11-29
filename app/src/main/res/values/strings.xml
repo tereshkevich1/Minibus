@@ -43,4 +43,6 @@
     <string name="refusal">Нет</string>
     <string name="agreement">Да, оформляем</string>
     <string name="success_order">Заказ оформлен</string>
+
+    <string name="checkout_screen">Оформление заказа</string>
 </resources>

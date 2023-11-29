@@ -121,7 +121,7 @@ fun RouteConfigurationScreen(
                     )
                     //whereButton_2
                     DirectionButton(
-                        shape = MaterialTheme.shapes.small,
+                        shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp),
                         text = stringResource(R.string.where_text),
                         directionText = arrivalCity,
                         changeDirection = { onArrivalSelectionClick() }
@@ -183,7 +183,7 @@ fun RouteConfigurationScreen(
                     modifier = Modifier
                         .fillMaxHeight()
                         .weight(1f),
-                    shape = MaterialTheme.shapes.extraSmall,
+                    shape = RoundedCornerShape(topStart = 16.dp, bottomStart = 16.dp),
                     title = stringResource(id = R.string.date),
                     text = dateText,
                     painter = painterResource(id = R.drawable.outline_calendar_month_24),
@@ -202,7 +202,7 @@ fun RouteConfigurationScreen(
                     modifier = Modifier
                         .fillMaxHeight()
                         .weight(1f),
-                    shape = MaterialTheme.shapes.extraLarge,
+                    shape = RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp),
                     title = stringResource(R.string.passengers),
                     text = if (numberPassengers == 1) "$numberPassengers человек" else "$numberPassengers человека",
                     painter = painterResource(id = R.drawable.outline_person_outline_24),

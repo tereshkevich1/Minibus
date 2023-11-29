@@ -1,6 +1,7 @@
 package com.example.minibus.navigation
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -9,10 +10,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -26,6 +30,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.minibus.R
 import com.example.minibus.screens.PersonalInformationScreen
 import com.example.minibus.screens.ProfileSetupScreen
+import com.example.minibus.snackbarClasses.SnackbarDelegate
 import com.example.minibus.state_models.TicketUiState
 import com.example.minibus.vm.OrderViewModel
 import com.example.minibus.vm.UserViewModel
@@ -65,11 +70,29 @@ fun MainScreen(userViewModel: UserViewModel) {
 
 
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
-    val showTopBar =
-        currentRoute != BottomNavigationScreen.RouteConfigurationScreen.route // Пример условия для показа TopBar
-    val topBarTitle = getTitleForRoute(currentRoute)
+    val showTopBar = currentRoute != BottomNavigationScreen.RouteConfigurationScreen.route
+    val topBarTitle = getTitleForRoute(currentRoute, uiState)
+
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+
+    val snackbarDelegate = remember {
+        SnackbarDelegate(snackbarHostState, coroutineScope)
+    }
 
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) {
+                val backgroundColor = snackbarDelegate.snackbarBackgroundColor
+                Snackbar(containerColor = backgroundColor,  modifier = Modifier
+                    .padding(12.dp)){
+                    Text(text = it.visuals.message, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                }
+
+                
+            }
+        },
         topBar = {
             if (showTopBar) {
                 TopAppBar(
@@ -92,18 +115,24 @@ fun MainScreen(userViewModel: UserViewModel) {
     ) { innerPadding ->
         MainScreenNavigationConfigurations(
             navController, Modifier.padding(innerPadding),
-            viewModel, uiState, userViewModel
+            viewModel, uiState, userViewModel, snackbarDelegate
         )
     }
 }
 
-fun getTitleForRoute(route: String?): String {
+fun getTitleForRoute(route: String?, uiState: State<TicketUiState>): String {
     return when (route) {
         BottomNavigationScreen.RouteConfigurationScreen.route -> "Настройка маршрута"
         BottomNavigationScreen.TravelHistoryScreen.route -> "История поездок"
         BottomNavigationScreen.ContactsScreen.route -> "Контакты"
         BottomNavigationScreen.ProfileSetupScreen.route -> "Настройка профиля"
-        else -> "Приложение"
+        "resultSearchScreen" -> "${uiState.value.departureCity} - ${uiState.value.arrivalCity}"
+        "checkoutScreen/{tripId}" -> "Оформление заказа"
+        "selectionDeparturePoint" -> "${uiState.value.departureCity} - место посадки"
+        "selectionArrivalPoint" -> "${uiState.value.arrivalCity} - место высадки"
+        "selectionArrival" -> "Город прибытия"
+        "selectionDeparture" -> "Город отправления"
+        else -> "Minibus"
     }
 }
 
@@ -164,7 +193,8 @@ private fun MainScreenNavigationConfigurations(
     modifier: Modifier,
     viewModel: OrderViewModel,
     uiState: State<TicketUiState>,
-    userViewModel: UserViewModel
+    userViewModel: UserViewModel,
+    snackbarDelegate: SnackbarDelegate
 
 ) {
     NavHost(
@@ -173,7 +203,7 @@ private fun MainScreenNavigationConfigurations(
         modifier = modifier
     ) {
 
-        routeConfigurationGraph(navController, viewModel, uiState)
+        routeConfigurationGraph(navController, viewModel, uiState, snackbarDelegate)
         historyGraph(navController, viewModel, uiState)
         composable(BottomNavigationScreen.ContactsScreen.route) { ProfileSetupScreen() }
         composable(BottomNavigationScreen.ProfileSetupScreen.route) {

@@ -20,6 +20,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -36,6 +37,8 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.minibus.R
 import com.example.minibus.models.TripTime
+import com.example.minibus.snackbarClasses.SnackbarDelegate
+import com.example.minibus.snackbarClasses.SnackbarState
 import com.example.minibus.state_models.TicketUiState
 import com.example.minibus.ui.theme.MinibusTheme
 import com.example.minibus.vm.MinibusUiState
@@ -43,10 +46,11 @@ import com.example.minibus.vm.MyViewModelFactory
 import com.example.minibus.vm.OrderViewModel
 import com.example.minibus.vm.TripViewModel
 
+
 @Composable
 fun ResultSearchScreen(
     uiState: State<TicketUiState>, viewModel: OrderViewModel,
-    navController: NavController
+    navController: NavController, snackbarDelegate: SnackbarDelegate
 ) {
 
     val tripViewModel: TripViewModel = viewModel(
@@ -56,6 +60,8 @@ fun ResultSearchScreen(
             uiState.value.departureDate.toString()
         )
     )
+
+    //  var isError by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -71,7 +77,9 @@ fun ResultSearchScreen(
             is MinibusUiState.Success -> ResultLazyColum(
                 (tripViewModel.tripUIState as MinibusUiState.Success<List<TripTime>>).data,
                 navController,
-                tripViewModel
+                tripViewModel,
+                uiState,
+                enableIsError = { tripViewModel.enableIsError() }
             )
 
             is MinibusUiState.Loading -> {
@@ -95,6 +103,15 @@ fun ResultSearchScreen(
             }
         }
     }
+
+
+    when {
+        tripViewModel.isError -> ErrorSnackbar(
+            snackbarDelegate,
+            disableIsError = { tripViewModel.disableIsError() })
+    }
+
+
 }
 
 
@@ -102,7 +119,9 @@ fun ResultSearchScreen(
 fun ResultLazyColum(
     trips: List<TripTime>,
     navController: NavController,
-    tripViewModel: TripViewModel
+    tripViewModel: TripViewModel,
+    uiState: State<TicketUiState>,
+    enableIsError: () -> Unit
 ) = LazyColumn {
     items(trips) { item ->
         SearchItem(
@@ -115,11 +134,30 @@ fun ResultLazyColum(
             fare = "BYN",
             checkoutClick = {
                 Log.d("ResultLazyColum", "Navigating to checkoutScreen with trip ID: ${item.id}")
-                navController.navigate("checkoutScreen/${item.id}")
-            }
+                if (item.numberAvailableSeats >= uiState.value.numberChildrenSeats + uiState.value.numberAdultsSeats) {
+                    navController.navigate("checkoutScreen/${item.id}")
+                } else if (!tripViewModel.isError) {
+                    enableIsError()
+                }
+            },
+            enabled = item.numberAvailableSeats > 0
 
         )
     }
+}
+
+@Composable
+fun ErrorSnackbar(snackbarDelegate: SnackbarDelegate, disableIsError: () -> Unit) {
+
+    LaunchedEffect(key1 = null) {
+        snackbarDelegate.closeSnackbar()
+        snackbarDelegate.showSnackbar(
+            SnackbarState.ERROR,
+            "Места заняты, вас много"
+        )
+        disableIsError()
+    }
+
 }
 
 @Composable
@@ -164,9 +202,10 @@ fun SearchItem(
     numberSeats: String,
     fare: String,
     colorSeats: Color,
-    checkoutClick: () -> Unit
+    checkoutClick: () -> Unit,
+    enabled: Boolean
 ) {
-    Card(onClick = checkoutClick, modifier = Modifier.fillMaxWidth()) {
+    Card(onClick = checkoutClick, modifier = Modifier.fillMaxWidth(), enabled = enabled) {
         Column(modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_small))) {
             Row(modifier = Modifier.fillMaxWidth()) {
                 Text(text = departureTime)
@@ -214,9 +253,12 @@ fun StopsRow(departurePoint: String, title: String, changeStopPoint: () -> Unit)
         )
     }
 
-
 }
 
+@Composable
+fun errorDialog() {
+
+}
 
 @Composable
 @Preview
@@ -230,7 +272,8 @@ fun ResultSearchItemScreenDarkPreview() {
             fare = "100",
             price = "27",
             colorSeats = Color.Green,
-            checkoutClick = {}
+            checkoutClick = {},
+            enabled = true
         )
     }
 }
@@ -255,6 +298,6 @@ fun ResultSearchScreenLightPreview() {
     val uiState: State<TicketUiState> = viewModel.uiState.collectAsState()
     val navController = rememberNavController()
     MinibusTheme(useDarkTheme = false) {
-        ResultSearchScreen(uiState, viewModel, navController)
+        ResultSearchScreen(uiState, viewModel, navController, snackbarDelegate = SnackbarDelegate())
     }
 }
