@@ -1,5 +1,6 @@
 package com.example.minibus.vm
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,6 +12,8 @@ import com.example.minibus.network.MinibusApi
 import com.example.minibus.state_models.ButtonUiState
 import com.example.minibus.state_models.ButtonUiState.Defolt
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.io.IOException
 
 class CheckoutViewModel(tripId: Int) : ViewModel() {
     private var orderDetailsObject: Details? by mutableStateOf(null)
@@ -26,37 +29,41 @@ class CheckoutViewModel(tripId: Int) : ViewModel() {
         }
     }
 
-    private fun loadData() {
-        // Simulate loading data from a database
-        viewModelScope.launch {
-
-
-            /* trip = MinibusApi.retrofitService.getTripbyId(id)
-             if (trip!=null){
-                 driver = MinibusApi.retrofitService.getDriverById(trip.driverId)
-                 time = MinibusApi.retrofitService.getDriverById(trip.timeId)
-             }
-             isLoading = false*/
-        }
-    }
-    /*
-    userId: Int,
-    tripId: Int,
-    numberTickets: Int,
-    status: Int,
-    departureStopId: Int,
-    arrivalStopId: Int*/
-    fun addOrder(){
+    fun addOrder(
+        tripId: Int,
+        userId: Int,
+        numberTickets: Int,
+        departureStopId: Int,
+        arrivalStopId: Int
+    ) {
+        Log.d("addOrderParameters"," TripId: $tripId,userId: $userId")
         buttonState = ButtonUiState.Loading
         viewModelScope.launch {
+            buttonState = try {
+                MinibusApi.retrofitService.addOrder(
+                    userId,
+                    tripId,
+                    numberTickets,
+                    1,
+                    departureStopId,
+                    arrivalStopId
+                )
+                ButtonUiState.Success
+            } catch (e: IOException) {
+
+                Log.d("addOrder ERROR", "$e")
+                ButtonUiState.Error
+
+            } catch (e: HttpException) {
+                Log.d("addOrder ERROR", "$e")
+                ButtonUiState.Error
+
+            }
 
         }
     }
 
     fun getData(): Details? = orderDetailsObject
-    //    fun getDriver(): Trip = driver
-
-    //   fun getDriver(): Trip = time
 
 }
 

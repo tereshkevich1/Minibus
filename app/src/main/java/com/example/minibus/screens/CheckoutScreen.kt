@@ -1,5 +1,6 @@
 package com.example.minibus.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -53,12 +54,15 @@ import com.example.minibus.models.Car
 import com.example.minibus.models.Details
 import com.example.minibus.models.Time
 import com.example.minibus.models.Trip
+import com.example.minibus.snackbarClasses.SnackbarDelegate
+import com.example.minibus.snackbarClasses.SnackbarState
 import com.example.minibus.state_models.ButtonUiState
 import com.example.minibus.state_models.TicketUiState
 import com.example.minibus.ui.theme.MinibusTheme
 import com.example.minibus.vm.CheckoutViewModel
 import com.example.minibus.vm.CheckoutViewModelFactory
 import com.example.minibus.vm.OrderViewModel
+import com.example.minibus.vm.UserViewModel
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -68,11 +72,14 @@ import java.util.Locale
 @Composable
 fun CheckoutScreen(
     uiState: State<TicketUiState>,
-    orderViewModel: OrderViewModel,
+    userViewModel: UserViewModel,
     navController: NavController,
-    tripId: Int
-) {
-    val checkoutViewModel: CheckoutViewModel = viewModel(factory = CheckoutViewModelFactory(tripId))
+    snackbarDelegate: SnackbarDelegate,
+    tripId: Int,
+
+    ) {
+    val checkoutViewModel: CheckoutViewModel =
+        viewModel(factory = CheckoutViewModelFactory(tripId))
 
     val details = checkoutViewModel.getData()
     val isLoading by rememberUpdatedState(checkoutViewModel.isLoading)
@@ -88,6 +95,10 @@ fun CheckoutScreen(
 
     }
 
+    val userId = userViewModel.getUserId().collectAsState(initial = 0).value
+
+    Log.d("as", details.toString())
+
     Surface(modifier = Modifier.fillMaxSize()) {
         if (!isLoading && details != null) {
             OrderPanel(
@@ -95,8 +106,26 @@ fun CheckoutScreen(
                 checkoutViewModel,
                 navController,
                 details,
-                onOrderButtonClick = { openDialog = false
-                checkoutViewModel.addOrder()})
+                onOrderButtonClick = {
+                    openDialog = false
+                    Log.d("asfafa", "$tripId,$userId")
+                    checkoutViewModel.addOrder(
+                        tripId,
+                        userId ?: 0,
+                        uiState.value.numberAdultsSeats + uiState.value.numberChildrenSeats,
+                        uiState.value.departurePointId,
+                        uiState.value.arrivalPointId
+                    )
+                    navController.navigate("history"){
+                        popUpTo("option"){
+                            inclusive = true
+                        }
+                    }
+                    snackbarDelegate.showSnackbar(SnackbarState.DEFAULT,"Заказ успешно оформлен")
+
+                },
+                snackbarDelegate
+            )
         } else {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(modifier = Modifier.size(44.dp))
@@ -112,7 +141,8 @@ fun OrderPanel(
     checkoutViewModel: CheckoutViewModel,
     navController: NavController,
     details: Details,
-    onOrderButtonClick: () -> Unit
+    onOrderButtonClick: () -> Unit,
+    snackbarDelegate: SnackbarDelegate
 ) {
     val scrollState = rememberScrollState()
     Column(
@@ -166,15 +196,26 @@ fun OrderPanel(
                 .padding(bottom = dimensionResource(id = R.dimen.padding_small))
         ) {
 
-            when(checkoutViewModel.buttonState){
-                ButtonUiState.Defolt ->  Text(text = stringResource(id = R.string.checkout))
-                ButtonUiState.Error -> TODO()
+            when (checkoutViewModel.buttonState) {
+                ButtonUiState.Defolt -> Text(text = stringResource(id = R.string.checkout))
+                ButtonUiState.Error -> {
+                    Text(text = "ошибка")
+                }
+
                 ButtonUiState.Loading -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.onPrimary)
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
                     }
                 }
-                ButtonUiState.Success -> TODO()
+
+                ButtonUiState.Success -> {
+
+
+                }
             }
 
         }
@@ -378,7 +419,7 @@ fun CheckoutScreenDarkPreview() {
     val details = Details(trip, bus, time, car)
     MinibusTheme(useDarkTheme = true) {
         Surface(modifier = Modifier.fillMaxSize()) {
-            OrderPanel(uiState, checkoutViewModel, navController, details, {})
+            //OrderPanel(uiState, checkoutViewModel, navController, details, {})
         }
 
     }
@@ -398,7 +439,7 @@ fun CheckoutScreenLightPreview() {
     val details = Details(trip, bus, time, car)
     MinibusTheme(useDarkTheme = false) {
         Surface(modifier = Modifier.fillMaxSize()) {
-            OrderPanel(uiState, checkoutViewModel, navController, details, {})
+            //OrderPanel(uiState, checkoutViewModel, navController, details, {})
         }
 
     }

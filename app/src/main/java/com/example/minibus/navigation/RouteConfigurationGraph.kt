@@ -15,13 +15,15 @@ import com.example.minibus.screens.StoppingPointsScreen
 import com.example.minibus.snackbarClasses.SnackbarDelegate
 import com.example.minibus.state_models.TicketUiState
 import com.example.minibus.vm.OrderViewModel
+import com.example.minibus.vm.UserViewModel
 import java.time.format.DateTimeFormatter
 
 fun NavGraphBuilder.routeConfigurationGraph(
     navController: NavController,
     viewModel: OrderViewModel,
     uiState: State<TicketUiState>,
-    snackbarDelegate: SnackbarDelegate
+    snackbarDelegate: SnackbarDelegate,
+    userViewModel: UserViewModel,
 ) {
     navigation(
         startDestination = BottomNavigationScreen.RouteConfigurationScreen.route,
@@ -75,7 +77,7 @@ fun NavGraphBuilder.routeConfigurationGraph(
             Log.d("CheckoutScreen", "Received trip ID as string: $tripIdString")
 
             Log.d("CheckoutScreen", "Parsed trip ID: $tripId")
-            CheckoutScreen(uiState, viewModel, navController, tripId)
+            CheckoutScreen(uiState, userViewModel, navController,snackbarDelegate, tripId)
         }
 
         composable("selectionDeparturePoint") {

@@ -72,6 +72,7 @@ fun MainScreen(userViewModel: UserViewModel) {
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
     val showTopBar = currentRoute != BottomNavigationScreen.RouteConfigurationScreen.route
     val topBarTitle = getTitleForRoute(currentRoute, uiState)
+    val showTopBarBackIcon = items.any { it.route == currentRoute }
 
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -85,24 +86,39 @@ fun MainScreen(userViewModel: UserViewModel) {
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState) {
                 val backgroundColor = snackbarDelegate.snackbarBackgroundColor
-                Snackbar(containerColor = backgroundColor,  modifier = Modifier
-                    .padding(12.dp)){
-                    Text(text = it.visuals.message, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                Snackbar(
+                    containerColor = backgroundColor, modifier = Modifier
+                        .padding(12.dp)
+                ) {
+                    Text(
+                        text = it.visuals.message,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
 
-                
+
             }
         },
         topBar = {
             if (showTopBar) {
-                TopAppBar(
-                    title = { Text(text = topBarTitle, fontSize = 16.sp) },
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            text = topBarTitle,
+                            fontSize = 16.sp,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    },
                     navigationIcon = {
-                        IconButton(onClick = { navController.navigateUp() }) {
-                            Icon(
-                                painter = painterResource(R.drawable.baseline_arrow_back_24),
-                                contentDescription = "Назад"
-                            )
+                        if (!showTopBarBackIcon) {
+                            IconButton(onClick = { navController.navigateUp() }) {
+                                Icon(
+                                    painter = painterResource(R.drawable.baseline_arrow_back_24),
+                                    contentDescription = "Назад"
+                                )
+                            }
                         }
                     },
                     modifier = Modifier.shadow(6.dp)
@@ -203,10 +219,13 @@ private fun MainScreenNavigationConfigurations(
         modifier = modifier
     ) {
 
-        routeConfigurationGraph(navController, viewModel, uiState, snackbarDelegate)
+        routeConfigurationGraph(navController, viewModel, uiState, snackbarDelegate, userViewModel)
         historyGraph(navController, viewModel, uiState)
-        composable(BottomNavigationScreen.ContactsScreen.route) { ProfileSetupScreen() }
+        composable(BottomNavigationScreen.ContactsScreen.route) {
+
+            ProfileSetupScreen(navController) }
         composable(BottomNavigationScreen.ProfileSetupScreen.route) {
+
             PersonalInformationScreen(
                 userViewModel
             )

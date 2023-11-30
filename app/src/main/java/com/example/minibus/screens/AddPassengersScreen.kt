@@ -47,7 +47,7 @@ fun AddPassengersScreen(viewModel: OrderViewModel, uiState: State<TicketUiState>
                 decreaseNumberSeats = { viewModel.decreaseNumberAdultsSeats() }
             )
             AddLine(
-                text = stringResource(id = R.string.adult_passenger),
+                text = stringResource(id = R.string.child_passenger),
                 numberSeats = uiState.value.numberChildrenSeats.toString(),
                 increaseNumberSeats = { viewModel.increaseNumberChildrenSeats() },
                 decreaseNumberSeats = { viewModel.decreaseNumberChildrenSeats() }

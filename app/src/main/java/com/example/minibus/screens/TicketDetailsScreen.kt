@@ -125,7 +125,7 @@ fun TicketDetailsPanel(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        var openDialog = remember { mutableStateOf(false) }
+        val openDialog = remember { mutableStateOf(false) }
 
         ElevatedButton(
             onClick = { openDialog.value = true }, modifier = Modifier
@@ -147,7 +147,11 @@ fun TicketDetailsPanel(
                     onConfirmation = {
                         openDialog.value = false
                         ticketViewModel.deleteOrder(userTravelHistory.order.id)
-                        navController.navigate("Story")
+                        navController.navigate("history"){
+                            popUpTo("history"){
+                                inclusive = true
+                            }
+                        }
 
                     },
                     dialogText = stringResource(R.string.cancel_order_ask),

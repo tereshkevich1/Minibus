@@ -29,7 +29,7 @@ class HistoryViewModel : ViewModel() {
 
             tripHistoryUIState = try {
 
-                val tripsList =  MinibusApi.retrofitService.getUserTravelHistory(4)
+                val tripsList =  MinibusApi.retrofitService.getUserTravelHistory(3)
 
                 val futureTrips = tripsList.filter { it.order.status == 1 }
                 val pastTrips =  tripsList.filter { it.order.status == 2 }

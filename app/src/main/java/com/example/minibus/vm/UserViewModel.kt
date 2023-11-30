@@ -53,6 +53,9 @@ class UserViewModel(private val dataStoreManager: DataStoreManager) : ViewModel(
         }
     }
 
+    fun getUserId() =
+        dataStoreManager.getUserId()
+
     fun updateFirstName(input: String) {
         _userUiState.update { current ->
             current.copy(

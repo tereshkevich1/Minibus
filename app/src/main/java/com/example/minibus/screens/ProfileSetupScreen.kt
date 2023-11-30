@@ -8,10 +8,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.minibus.R
 
 @Composable
-fun ProfileSetupScreen() {
+fun ProfileSetupScreen(navController: NavController) {
 
     Column(
         modifier = Modifier.padding(
@@ -23,7 +25,7 @@ fun ProfileSetupScreen() {
         )
     ) {
         Button(onClick = { /*TODO*/ }) {
-            Text(text = "hhhhh")
+            Text(text = navController.currentBackStackEntry?.savedStateHandle?.get<String>("hello_key")?:"q")
         }
     }
 }
@@ -32,5 +34,5 @@ fun ProfileSetupScreen() {
 @Composable
 @Preview
 fun ProfileSetupScreenPreview() {
-    ProfileSetupScreen()
+    ProfileSetupScreen(rememberNavController())
 }

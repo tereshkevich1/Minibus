@@ -10,8 +10,8 @@ data class TicketUiState (
     val arrivalCity: String = "Минск",
     val departurePoint: String? = null,
     val arrivalPoint: String? = null,
-    val departurePointId: Int? = null,
-    val arrivalPointId: Int? = null,
+    val departurePointId: Int = 1,
+    val arrivalPointId: Int = 1,
     val departureCityId: Int = 6,
     val arrivalCityId: Int = 10
 )

@@ -59,6 +59,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun TripHistoryScreen(navController: NavController) {
 
+
     val historyViewModel: HistoryViewModel = viewModel()
     var firstButtonActive by rememberSaveable { mutableStateOf(true) }
 

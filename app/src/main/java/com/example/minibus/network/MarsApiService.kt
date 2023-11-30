@@ -95,7 +95,7 @@ interface MinibusApiService {
         @Path("id") orderId: Int,
     ): Response<Void>
 
-    @POST("/add/{userId}/{tripId}/{numberTickets}/{status}/{departureStopId}/{arrivalStopId}")
+    @POST("/order/add/{userId}/{tripId}/{numberTickets}/{status}/{departureStopId}/{arrivalStopId}")
     suspend fun addOrder(
     @Path("userId") userId: Int,
     @Path("tripId") tripId: Int,

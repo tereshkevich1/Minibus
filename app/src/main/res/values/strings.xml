@@ -4,6 +4,7 @@
     <string name="where_text">Куда:</string>
     <string name="configuration_route">Поиск</string>
     <string name="adult_passenger">Взрослый</string>
+    <string name="child_passenger">Детский</string>
     <string name="continue_name">Продолжить</string>
     <string name="search_state">Найти город</string>
     <string name="user_first_name">Имя</string>
