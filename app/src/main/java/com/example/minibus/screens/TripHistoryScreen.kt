@@ -2,6 +2,7 @@ package com.example.minibus.screens
 
 import android.net.Uri
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -43,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.rememberNavController
 import com.example.minibus.R
 import com.example.minibus.models.Time
@@ -62,6 +64,16 @@ fun TripHistoryScreen(navController: NavController) {
 
     val historyViewModel: HistoryViewModel = viewModel()
     var firstButtonActive by rememberSaveable { mutableStateOf(true) }
+
+    BackHandler {
+        navController.navigate("Search"){
+            popUpTo(navController.graph.findStartDestination().id) {
+                saveState = true
+            }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
 
     Column {
         SwitchPanel(

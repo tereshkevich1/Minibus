@@ -148,8 +148,8 @@ fun TicketDetailsPanel(
                         openDialog.value = false
                         ticketViewModel.deleteOrder(userTravelHistory.order.id)
                         navController.navigate("history"){
-                            popUpTo("history"){
-                                inclusive = true
+                            popUpTo(navController.graph.startDestinationId) {
+                                inclusive = false
                             }
                         }
 

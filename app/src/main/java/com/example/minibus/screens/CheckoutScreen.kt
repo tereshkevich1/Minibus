@@ -15,56 +15,38 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.example.minibus.R
-import com.example.minibus.models.Bus
-import com.example.minibus.models.Car
 import com.example.minibus.models.Details
-import com.example.minibus.models.Time
-import com.example.minibus.models.Trip
 import com.example.minibus.snackbarClasses.SnackbarDelegate
 import com.example.minibus.snackbarClasses.SnackbarState
 import com.example.minibus.state_models.ButtonUiState
 import com.example.minibus.state_models.TicketUiState
-import com.example.minibus.ui.theme.MinibusTheme
 import com.example.minibus.vm.CheckoutViewModel
 import com.example.minibus.vm.CheckoutViewModelFactory
-import com.example.minibus.vm.OrderViewModel
 import com.example.minibus.vm.UserViewModel
-import java.time.LocalDate
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -78,60 +60,36 @@ fun CheckoutScreen(
     tripId: Int,
 
     ) {
+
     val checkoutViewModel: CheckoutViewModel =
         viewModel(factory = CheckoutViewModelFactory(tripId))
 
     val details = checkoutViewModel.getData()
     val isLoading by rememberUpdatedState(checkoutViewModel.isLoading)
 
-    var openDialog by remember { mutableStateOf(false) }
-
-    when {
-        openDialog -> {
-            successfulOrderAlertDialog(onDismissRequest = { openDialog = false },
-                onConfirmation = { openDialog = false },
-                onDismissButtonClick = { openDialog = false })
-        }
-
-    }
-
     val userId = userViewModel.getUserId().collectAsState(initial = 0).value
 
-    Log.d("as", details.toString())
-
-    Surface(modifier = Modifier.fillMaxSize()) {
-        if (!isLoading && details != null) {
-            OrderPanel(
-                uiState,
-                checkoutViewModel,
-                navController,
-                details,
-                onOrderButtonClick = {
-                    openDialog = false
-                    Log.d("asfafa", "$tripId,$userId")
-                    checkoutViewModel.addOrder(
-                        tripId,
-                        userId ?: 0,
-                        uiState.value.numberAdultsSeats + uiState.value.numberChildrenSeats,
-                        uiState.value.departurePointId,
-                        uiState.value.arrivalPointId
-                    )
-                    navController.navigate("history"){
-                        popUpTo("option"){
-                            inclusive = true
-                        }
-                    }
-                    snackbarDelegate.showSnackbar(SnackbarState.DEFAULT,"Заказ успешно оформлен")
-
-                },
-                snackbarDelegate
-            )
-        } else {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(modifier = Modifier.size(44.dp))
-            }
-        }
+    if (!isLoading && details != null) {
+        OrderPanel(
+            uiState,
+            checkoutViewModel,
+            navController,
+            details,
+            onOrderButtonClick = {
+                checkoutViewModel.addOrder(
+                    tripId,
+                    userId ?: 0,
+                    uiState.value.numberAdultsSeats + uiState.value.numberChildrenSeats,
+                    uiState.value.departurePointId,
+                    uiState.value.arrivalPointId
+                )
+            },
+            snackbarDelegate
+        )
+    } else {
+        DefaultProgressIndicator()
     }
+
 }
 
 
@@ -199,30 +157,68 @@ fun OrderPanel(
             when (checkoutViewModel.buttonState) {
                 ButtonUiState.Defolt -> Text(text = stringResource(id = R.string.checkout))
                 ButtonUiState.Error -> {
-                    Text(text = "ошибка")
+                    Text(text = "Error")
                 }
 
                 ButtonUiState.Loading -> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            strokeWidth = 2.dp,
-                            color = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
+                    ButtonProgressIndicator()
                 }
 
                 ButtonUiState.Success -> {
-
-
+                    Text(text = stringResource(id = R.string.checkout))
+                    NavigateToUserHistory(navController, snackbarDelegate)
                 }
-            }
 
+            }
         }
 
     }
+
 }
 
+@Composable
+fun NavigateToUserHistory(navController: NavController, snackbarDelegate: SnackbarDelegate) {
+    Log.d("navControllerCS","${navController.graph.findStartDestination()}")
+
+
+    val stringMessage = stringResource(id = R.string.success_order)
+    LaunchedEffect(Unit) {
+        snackbarDelegate.showSnackbar(
+            SnackbarState.DEFAULT,
+            stringMessage
+        )
+            //navigate("Story")
+        navController.navigate("Story") {
+            popUpTo(navController.graph.id) {
+                inclusive = true
+            }
+            // Avoid multiple copies of the same destination when
+            // reselecting the same item
+            launchSingleTop = true
+            // Restore state when reselecting a previously selected item
+            restoreState = true
+        }
+    }
+}
+
+
+@Composable
+fun ButtonProgressIndicator() {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(20.dp),
+            strokeWidth = 2.dp,
+            color = MaterialTheme.colorScheme.onPrimary
+        )
+    }
+}
+
+@Composable
+fun DefaultProgressIndicator() {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        CircularProgressIndicator(modifier = Modifier.size(44.dp))
+    }
+}
 
 @Composable
 fun Title(title: String) {
@@ -340,6 +336,7 @@ fun PaymentPanel(numberTickets: String, fullSum: String) {
 
 }
 
+/*
 @Composable
 fun successfulOrderAlertDialog(
     onDismissRequest: () -> Unit,
@@ -412,7 +409,7 @@ fun CheckoutScreenDarkPreview() {
     val viewModel: OrderViewModel = viewModel()
     val uiState = viewModel.uiState.collectAsState()
     val navController = rememberNavController()
-    val bus = Bus(1, "AB-1234", 1, 2009, "Зеленый")
+    val bus = Bus(1, "AB-1234", 1, 2009, "green")
     val time = Time(1, LocalTime.MIDNIGHT, LocalTime.NOON)
     val car = Car(1, "Mercedes Sprinter", 15)
     val trip = Trip(1, 1, 1, 1, 1, 1, 1, LocalDate.now())
@@ -432,7 +429,7 @@ fun CheckoutScreenLightPreview() {
     val viewModel: OrderViewModel = viewModel()
     val uiState = viewModel.uiState.collectAsState()
     val navController = rememberNavController()
-    val bus = Bus(1, "AB-1234", 1, 2009, "Зеленый")
+    val bus = Bus(1, "AB-1234", 1, 2009, "green")
     val time = Time(1, LocalTime.MIDNIGHT, LocalTime.NOON)
     val car = Car(1, "Mercedes Sprinter", 15)
     val trip = Trip(1, 1, 1, 1, 1, 1, 1, LocalDate.now())
@@ -443,4 +440,4 @@ fun CheckoutScreenLightPreview() {
         }
 
     }
-}
+}*/

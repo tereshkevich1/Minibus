@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.minibus.R
 import com.example.minibus.dataStoreManager.DataStoreManager
 import com.example.minibus.network.MinibusApi
+import com.example.minibus.state_models.ButtonUiState
 import com.example.minibus.state_models.UserUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,13 +25,16 @@ class UserViewModel(private val dataStoreManager: DataStoreManager) : ViewModel(
     private val _userUiState = MutableStateFlow(UserUiState())
     val userUiState = _userUiState.asStateFlow()
 
+    private var fieldIsUpdated = false
     var showNotification by mutableStateOf(false)
     var errorPhone by mutableIntStateOf(0)
     var errorFirstName by mutableIntStateOf(0)
     var errorLastName by mutableIntStateOf(0)
 
 
-    private var fieldIsUpdated = false
+    var errorPassword by mutableIntStateOf(0)
+    var errorConfirmationPassword by mutableIntStateOf(0)
+    var buttonState: ButtonUiState by mutableStateOf(ButtonUiState.Defolt)
 
     init {
         getUserData()
@@ -55,6 +59,72 @@ class UserViewModel(private val dataStoreManager: DataStoreManager) : ViewModel(
 
     fun getUserId() =
         dataStoreManager.getUserId()
+
+
+    // Make checkUpdate a suspend function and return a Boolean
+    private suspend fun checkUpdate(): Boolean {
+        return MinibusApi.retrofitService.updateUser(
+            userUiState.value.userId,
+            userUiState.value.firstName,
+            userUiState.value.lastName,
+            userUiState.value.phone
+        ).isSuccessful
+    }
+
+    fun updateUser() {
+        Log.d("fieldIsUpdated", "$fieldIsUpdated")
+        if (checkFieldsForUpdates() && fieldIsUpdated) {
+
+            viewModelScope.launch {
+                // Call checkUpdate and wait for the result
+                val updateSuccess = checkUpdate()
+
+                // Only proceed if the update was successful
+                if (updateSuccess) {
+                    withContext(Dispatchers.Main) {
+                        changeNotification(true)
+                        Log.d("UpdateUser", "changeNotification called")
+                        fieldIsUpdated = false
+                    }
+                    dataStoreManager.saveUserData(
+                        userUiState.value.firstName,
+                        userUiState.value.lastName,
+                        userUiState.value.phone
+                    )
+                }
+            }
+
+        }
+    }
+
+    fun addUser() {
+        if (checkFieldsForAdd()) {
+            viewModelScope.launch {
+                buttonState = ButtonUiState.Loading
+            }
+        }
+    }
+
+
+    fun changeNotification(turn: Boolean) {
+        showNotification = turn
+    }
+
+    fun updatePassword(input: String) {
+        _userUiState.update { current ->
+            current.copy(
+                password = input
+            )
+        }
+    }
+
+    fun updateConfirmationPasswordField(input: String) {
+        _userUiState.update { current ->
+            current.copy(
+                confirmationPasswordField = input
+            )
+        }
+    }
 
     fun updateFirstName(input: String) {
         _userUiState.update { current ->
@@ -102,6 +172,47 @@ class UserViewModel(private val dataStoreManager: DataStoreManager) : ViewModel(
         return phoneIsEmpty
     }
 
+    private fun passwordIsEmpty(): Boolean {
+        val password = userUiState.value.password
+        val passwordValid = password.length in 6..15
+
+        errorPassword = when {
+            password.isEmpty() -> R.string.error_format_empty
+            !passwordValid -> R.string.password_error
+            else -> 0
+
+        }
+
+        val passwordIsEmpty = password.isEmpty() || !passwordValid
+
+        _userUiState.update { current ->
+            current.copy(passwordIsEmpty = passwordIsEmpty)
+        }
+
+        return passwordIsEmpty
+    }
+
+    private fun confirmPasswordIsEmpty(): Boolean {
+        val confirmationPassword = userUiState.value.confirmationPasswordField
+        val password = userUiState.value.password
+        val confirmationPasswordValid = confirmationPassword == password
+
+        errorConfirmationPassword = when {
+            confirmationPassword.isEmpty() -> R.string.error_format_empty
+            !confirmationPasswordValid -> R.string.password_mismatch_error
+            else -> 0
+
+        }
+
+        val confirmationPasswordIsEmpty = password.isEmpty() || !confirmationPasswordValid
+
+        _userUiState.update { current ->
+            current.copy(confirmationPasswordFieldIsEmpty = confirmationPasswordIsEmpty)
+        }
+
+        return confirmationPasswordIsEmpty
+    }
+
     private fun firstNameIsEmpty(): Boolean {
         val firstName = userUiState.value.firstName
         val firstNameValid = firstName.length in 2..30
@@ -141,63 +252,24 @@ class UserViewModel(private val dataStoreManager: DataStoreManager) : ViewModel(
         return lastNameIsEmpty
     }
 
-    private fun checkFields(): Boolean {
+    private fun checkFieldsForUpdates(): Boolean {
         val lastNameIsEmpty = lastNameIsEmpty()
         val firstNameIsEmpty = firstNameIsEmpty()
         val phoneIsEmpty = phoneIsEmpty()
         return !lastNameIsEmpty && !firstNameIsEmpty && !phoneIsEmpty
     }
 
-    // Make checkUpdate a suspend function and return a Boolean
-    private suspend fun checkUpdate(): Boolean {
-        return MinibusApi.retrofitService.updateUser(
-            userUiState.value.userId,
-            userUiState.value.firstName,
-            userUiState.value.lastName,
-            userUiState.value.phone
-        ).isSuccessful
-    }
 
-    fun updateUser() {
-        if (checkFields() && fieldIsUpdated) {
-
-            viewModelScope.launch {
-                // Call checkUpdate and wait for the result
-                val updateSuccess = checkUpdate()
-
-                // Only proceed if the update was successful
-                if (updateSuccess) {
-
-
-                    withContext(Dispatchers.Main) {
-                        changeNotification(true)
-                        Log.d("UpdateUser", "changeNotification called")
-                        fieldIsUpdated = false
-                    }
-
-                    _userUiState.update { current ->
-                        current.copy(
-                            lastNameIsEmpty = false,
-                            phoneIsEmpty = false,
-                            firstNameIsEmpty = false
-                        )
-                    }
-
-                    dataStoreManager.saveUserData(
-                        userUiState.value.firstName,
-                        userUiState.value.lastName,
-                        userUiState.value.phone
-                    )
-                }
-            }
-
-        }
+    private fun checkFieldsForAdd(): Boolean {
+        val lastNameIsEmpty = lastNameIsEmpty()
+        val firstNameIsEmpty = firstNameIsEmpty()
+        val phoneIsEmpty = phoneIsEmpty()
+        val passwordIsEmpty = passwordIsEmpty()
+        val confirmPasswordIsEmpty = confirmPasswordIsEmpty()
+        return !lastNameIsEmpty && !firstNameIsEmpty && !phoneIsEmpty && !passwordIsEmpty && !confirmPasswordIsEmpty
     }
 
 
-    fun changeNotification(turn: Boolean) {
-        showNotification = turn
-    }
 }
 
 class UserViewModelFactory(private val dataStoreManager: DataStoreManager) :

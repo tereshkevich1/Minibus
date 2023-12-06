@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,7 +17,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -50,85 +48,83 @@ fun PersonalInformationScreen(userViewModel: UserViewModel) {
 
     val userState by userViewModel.userUiState.collectAsState()
 
-    Surface(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .padding(dimensionResource(id = R.dimen.padding_medium))
-                .fillMaxWidth()
-        ) {
+    Column(
+        modifier = Modifier
+            .padding(dimensionResource(id = R.dimen.padding_medium))
+            .fillMaxWidth()
+    ) {
 
-            InputField(
-                title = stringResource(id = R.string.user_first_name),
-                text = userState.firstName,
-                label = stringResource(id = R.string.input_first_name),
-                modifier = Modifier.padding(
-                    bottom =
-                    dimensionResource(id = R.dimen.padding_small)
-                ),
-                onValueChanged = { userViewModel.updateFirstName(it) },
-                isTextEmpty = userState.firstNameIsEmpty,
-                errorText = userViewModel.errorFirstName
+        InputField(
+            title = stringResource(id = R.string.user_first_name),
+            text = userState.firstName,
+            label = stringResource(id = R.string.input_first_name),
+            modifier = Modifier.padding(
+                bottom =
+                dimensionResource(id = R.dimen.padding_small)
+            ),
+            onValueChanged = { userViewModel.updateFirstName(it) },
+            isTextEmpty = userState.firstNameIsEmpty,
+            errorText = userViewModel.errorFirstName
 
+        )
+        Log.d("ResourcesTagpERSON", "is ${userViewModel.errorPhone}")
+
+        InputField(
+            title = stringResource(id = R.string.user_last_name),
+            text = userState.lastName,
+            label = stringResource(id = R.string.input_last_name),
+            modifier = Modifier.padding(
+                bottom =
+                dimensionResource(id = R.dimen.padding_small)
+            ),
+            onValueChanged = { userViewModel.updateLastName(it) },
+            isTextEmpty = userState.lastNameIsEmpty,
+            errorText = userViewModel.errorLastName
+        )
+
+        InputField(
+            title = stringResource(id = R.string.user_phone_number),
+            text = userState.phone,
+            label = stringResource(id = R.string.input_phone_number),
+            modifier = Modifier.padding(
+                bottom =
+                dimensionResource(id = R.dimen.padding_small)
+            ),
+            onValueChanged = { userViewModel.updatePhone(it) },
+            isTextEmpty = userState.phoneIsEmpty,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+            errorText = userViewModel.errorPhone
+        )
+
+        //ErrorPanel()
+
+
+        Spacer(modifier = Modifier.weight(0.5f))
+
+
+
+        if (userViewModel.showNotification) {
+            TopNotification(
+                message = "Данные успешно обновлены",
+                visible = userViewModel.showNotification,
+                onDismiss = { userViewModel.changeNotification(false) }
             )
-            Log.d("ResourcesTagpERSON", "is ${userViewModel.errorPhone}")
-
-            InputField(
-                title = stringResource(id = R.string.user_last_name),
-                text = userState.lastName,
-                label = stringResource(id = R.string.input_last_name),
-                modifier = Modifier.padding(
-                    bottom =
-                    dimensionResource(id = R.dimen.padding_small)
-                ),
-                onValueChanged = { userViewModel.updateLastName(it) },
-                isTextEmpty = userState.lastNameIsEmpty,
-                errorText = userViewModel.errorLastName
-            )
-
-            InputField(
-                title = stringResource(id = R.string.user_phone_number),
-                text = userState.phone,
-                label = stringResource(id = R.string.input_phone_number),
-                modifier = Modifier.padding(
-                    bottom =
-                    dimensionResource(id = R.dimen.padding_small)
-                ),
-                onValueChanged = { userViewModel.updatePhone(it) },
-                isTextEmpty = userState.phoneIsEmpty,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                errorText = userViewModel.errorPhone
-            )
-
-            //ErrorPanel()
-
-
-            Spacer(modifier = Modifier.weight(0.5f))
-
-
-
-            if (userViewModel.showNotification) {
-                TopNotification(
-                    message = "Данные успешно обновлены",
-                    visible = userViewModel.showNotification,
-                    onDismiss = { userViewModel.changeNotification(false) }
-                )
-            }
-
-
-
-            Spacer(modifier = Modifier.weight(1f))
-            DeleteProfilePanel()
-            Button(
-                onClick = {
-                    userViewModel.updateUser()
-                }, modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-            ) {
-                Text(text = stringResource(R.string.save_text))
-            }
-
         }
+
+
+
+        Spacer(modifier = Modifier.weight(1f))
+        DeleteProfilePanel()
+        Button(
+            onClick = {
+                userViewModel.updateUser()
+            }, modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+        ) {
+            Text(text = stringResource(R.string.save_text))
+        }
+
     }
 }
 
@@ -154,7 +150,8 @@ fun InputField(
         TextField(
             value = text,
             onValueChange = onValueChanged,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth()
+                .height(52.dp),
             isError = isTextEmpty,
             label = {
                 Text(if (isTextEmpty) stringResource(errorText) else label)
@@ -163,8 +160,8 @@ fun InputField(
                 if (isTextEmpty) Text(label)
             },
             shape = RoundedCornerShape(
-                topStart = 16.dp,
-                topEnd = 16.dp
+                topStart = 8.dp,
+                topEnd = 8.dp
             ),
             keyboardOptions = keyboardOptions,
             singleLine = true,

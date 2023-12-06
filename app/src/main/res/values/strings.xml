@@ -43,7 +43,10 @@
     <string name="return_trip">Оформить обратную поездку?</string>
     <string name="refusal">Нет</string>
     <string name="agreement">Да, оформляем</string>
-    <string name="success_order">Заказ оформлен</string>
-
+    <string name="success_order">Заказ успешно оформлен</string>
+    <string name="create_account">Создать аккаунт</string>
+    <string name="password_error">Пароль должен содержать 6–15 символов</string>
+    <string name="password_mismatch_error">Пароли не совпадают</string>
     <string name="checkout_screen">Оформление заказа</string>
+
 </resources>

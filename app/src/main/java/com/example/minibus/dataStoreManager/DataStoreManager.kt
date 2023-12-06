@@ -19,6 +19,7 @@ class DataStoreManager(private val context: Context) {
 
     suspend fun saveUserData(firstName: String, lastName: String, phoneNumber: String) {
         context.dataStore.edit { preferences ->
+           // preferences[PreferencesKeys.USER_ID] = 3
             preferences[PreferencesKeys.PHONE_KEY] = phoneNumber
             preferences[PreferencesKeys.FIRST_NAME_KEY] = firstName
             preferences[PreferencesKeys.LAST_NAME_KEY] = lastName
@@ -39,7 +40,8 @@ class DataStoreManager(private val context: Context) {
                 preferences[PreferencesKeys.FIRST_NAME_KEY] ?: "",
                 preferences[PreferencesKeys.LAST_NAME_KEY] ?: "",
                 preferences[PreferencesKeys.PHONE_KEY] ?: "",
-                false
+                false,
+                ""
             )
         }
 

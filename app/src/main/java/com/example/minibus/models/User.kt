@@ -8,5 +8,6 @@ data class User(
     val firstName: String,
     val lastName: String,
     val phoneNumber : String,
-    val role: Boolean
+    val role: Boolean,
+    val password: String
 )

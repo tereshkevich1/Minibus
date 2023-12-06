@@ -1,5 +1,6 @@
 package com.example.minibus.navigation
 
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -184,6 +185,7 @@ private fun BottomNavigationBar(
                 },
                 selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                 onClick = {
+                    Log.d("navIconClick","${screen.route}")
                     navController.navigate(screen.route) {
                         // Pop up to the start destination of the graph to
                         // avoid building up a large stack of destinations

@@ -22,6 +22,7 @@ class CheckoutViewModel(tripId: Int) : ViewModel() {
 
     var buttonState: ButtonUiState by mutableStateOf(Defolt)
 
+
     init {
         viewModelScope.launch {
             orderDetailsObject = MinibusApi.retrofitService.getOrderDetails(tripId)
