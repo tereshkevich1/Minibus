@@ -48,5 +48,12 @@
     <string name="password_error">Пароль должен содержать 6–15 символов</string>
     <string name="password_mismatch_error">Пароли не совпадают</string>
     <string name="checkout_screen">Оформление заказа</string>
+    <string name="password">Пароль</string>
+    <string name="input_password">Введите пароль</string>
+    <string name="password_confirmation_field">Подтвердить пароль</string>
+    <string name="reenter_password">Введите пароль еще раз</string>
+    <string name="sign_in">Войти</string>
+    <string name="sign_up">Зарегистрироваться</string>
+
 
 </resources>

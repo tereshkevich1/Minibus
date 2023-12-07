@@ -17,7 +17,7 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore("u
 
 class DataStoreManager(private val context: Context) {
 
-    suspend fun saveUserData(firstName: String, lastName: String, phoneNumber: String) {
+    suspend fun updateUserData(firstName: String, lastName: String, phoneNumber: String) {
         context.dataStore.edit { preferences ->
            // preferences[PreferencesKeys.USER_ID] = 3
             preferences[PreferencesKeys.PHONE_KEY] = phoneNumber
@@ -36,7 +36,7 @@ class DataStoreManager(private val context: Context) {
     fun getUserData() = context.dataStore.data
         .map { preferences ->
             return@map User(
-                preferences[PreferencesKeys.USER_ID] ?: 1,
+                preferences[PreferencesKeys.USER_ID] ?: 0,
                 preferences[PreferencesKeys.FIRST_NAME_KEY] ?: "",
                 preferences[PreferencesKeys.LAST_NAME_KEY] ?: "",
                 preferences[PreferencesKeys.PHONE_KEY] ?: "",
@@ -45,6 +45,14 @@ class DataStoreManager(private val context: Context) {
             )
         }
 
+    suspend fun saveUserData(user: User){
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.USER_ID] = user.id
+            preferences[PreferencesKeys.PHONE_KEY] = user.phoneNumber
+            preferences[PreferencesKeys.FIRST_NAME_KEY] = user.firstName
+            preferences[PreferencesKeys.LAST_NAME_KEY] = user.lastName
+        }
+    }
     fun getUserId(): Flow<Int?> = context.dataStore.data.map { preferences ->
         return@map preferences[PreferencesKeys.USER_ID]
     }

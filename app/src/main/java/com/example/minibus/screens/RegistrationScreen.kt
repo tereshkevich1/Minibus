@@ -1,7 +1,9 @@
 package com.example.minibus.screens
 
 import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,9 +14,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -26,11 +28,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.minibus.R
 import com.example.minibus.dataStoreManager.DataStoreManager
@@ -49,14 +54,14 @@ fun RegistrationScreen(userViewModel: UserViewModel) {
             .padding(dimensionResource(id = R.dimen.padding_medium))
             .fillMaxWidth()
     ) {
-
+        ScreenTitle("Регистрация")
         InputField(
             title = stringResource(id = R.string.user_first_name),
             text = userState.firstName,
             label = stringResource(id = R.string.input_first_name),
             modifier = Modifier.padding(
                 bottom =
-                dimensionResource(id = R.dimen.padding_small)
+                dimensionResource(id = R.dimen.padding_extra_small)
             ),
             onValueChanged = { userViewModel.updateFirstName(it) },
             isTextEmpty = userState.firstNameIsEmpty,
@@ -71,7 +76,7 @@ fun RegistrationScreen(userViewModel: UserViewModel) {
             label = stringResource(id = R.string.input_last_name),
             modifier = Modifier.padding(
                 bottom =
-                dimensionResource(id = R.dimen.padding_small)
+                dimensionResource(id = R.dimen.padding_extra_small)
             ),
             onValueChanged = { userViewModel.updateLastName(it) },
             isTextEmpty = userState.lastNameIsEmpty,
@@ -84,7 +89,7 @@ fun RegistrationScreen(userViewModel: UserViewModel) {
             label = stringResource(id = R.string.input_phone_number),
             modifier = Modifier.padding(
                 bottom =
-                dimensionResource(id = R.dimen.padding_small)
+                dimensionResource(id = R.dimen.padding_extra_small)
             ),
             onValueChanged = { userViewModel.updatePhone(it) },
             isTextEmpty = userState.phoneIsEmpty,
@@ -93,23 +98,24 @@ fun RegistrationScreen(userViewModel: UserViewModel) {
         )
 
         PasswordInputField(
-            title = "Пароль", text = userState.password,
-            label = "Введите пароль",
+            title = stringResource(id = R.string.password), text = userState.password,
+            label = stringResource(id = R.string.input_password),
             modifier = Modifier.padding(
                 bottom =
-                dimensionResource(id = R.dimen.padding_small)
+                dimensionResource(id = R.dimen.padding_extra_small)
             ),
             onValueChanged = { userViewModel.updatePassword(it) },
             isTextEmpty = userState.passwordIsEmpty,
-            errorText = userViewModel.errorPassword
-        )
+            errorText = userViewModel.errorPassword,
+
+            )
 
         PasswordInputField(
-            title = "Подтвердить пароль", text = userState.confirmationPasswordField,
-            label = "Введите пароль еще раз",
+            title = stringResource(id = R.string.password_confirmation_field), text = userState.confirmationPasswordField,
+            label = stringResource(id = R.string.reenter_password),
             modifier = Modifier.padding(
                 bottom =
-                dimensionResource(id = R.dimen.padding_small)
+                dimensionResource(id = R.dimen.padding_extra_small)
             ),
             onValueChanged = { userViewModel.updateConfirmationPasswordField(it) },
             isTextEmpty = userState.confirmationPasswordFieldIsEmpty,
@@ -127,8 +133,8 @@ fun RegistrationScreen(userViewModel: UserViewModel) {
                 .fillMaxWidth()
                 .height(56.dp)
         ) {
-            when(userViewModel.buttonState){
-                ButtonUiState.Defolt ->    Text(text = stringResource(R.string.create_account))
+            when (userViewModel.buttonState) {
+                ButtonUiState.Defolt -> Text(text = stringResource(R.string.create_account))
                 ButtonUiState.Error -> TODO()
                 ButtonUiState.Loading -> ButtonProgressIndicator()
                 ButtonUiState.Success -> TODO()
@@ -154,14 +160,16 @@ fun PasswordInputField(
     Column(modifier = modifier) {
         Text(
             text = title,
-            modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_small))
+            modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_small)),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.SemiBold
         )
-        TextField(
+        OutlinedTextField(
             value = text,
             onValueChange = onValueChanged,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp),
+                .height(60.dp),
             isError = isTextEmpty,
             label = {
                 Text(if (isTextEmpty) stringResource(errorText) else label)
@@ -170,8 +178,7 @@ fun PasswordInputField(
                 if (isTextEmpty) Text(label)
             },
             shape = RoundedCornerShape(
-                topStart = 8.dp,
-                topEnd = 8.dp
+                8.dp
             ),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -190,9 +197,20 @@ fun PasswordInputField(
 }
 
 @Composable
+fun ScreenTitle(title: String, fontSize: TextUnit = 18.sp) {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+        Text(
+            text = title,
+            fontSize = fontSize,
+            fontWeight = FontWeight.SemiBold
+        )
+    }
+}
+
+@Composable
 @Preview
 fun RegistrationScreenDarkPreview() {
-    MinibusTheme(useDarkTheme = true) {
+    MinibusTheme(useDarkTheme = false) {
 
         val dataStoreManager = DataStoreManager(LocalContext.current)
         val userViewModel: UserViewModel =

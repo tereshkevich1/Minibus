@@ -6,6 +6,7 @@ import com.example.minibus.models.Driver
 import com.example.minibus.models.StopPoint
 import com.example.minibus.models.Transport
 import com.example.minibus.models.TripTime
+import com.example.minibus.models.User
 import com.example.minibus.models.UserTravelHistory
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -104,6 +105,12 @@ interface MinibusApiService {
     @Path("departureStopId") departureStopId: Int,
     @Path("arrivalStopId") arrivalStopId: Int,
     ): Response<Void>
+
+    @GET("user/{phoneNumber}/{password}/logIn")
+    suspend fun logIn(
+        @Path("password") password: String,
+        @Path("phoneNumber") phoneNumber: String
+    ): User
 
 }
 

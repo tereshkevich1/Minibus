@@ -17,8 +17,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -31,10 +31,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.minibus.R
 import com.example.minibus.dataStoreManager.DataStoreManager
@@ -138,20 +141,29 @@ fun InputField(
     modifier: Modifier,
     onValueChanged: (String) -> Unit,
     keyboardOptions: KeyboardOptions = KeyboardOptions(),
-    errorText: Int
+    errorText: Int,
+    padding: Dp = dimensionResource(id = R.dimen.padding_small)
 
 ) {
 
     Column(modifier = modifier) {
         Text(
             text = title,
-            modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_small))
+            modifier = Modifier.padding(
+                top = padding,
+                bottom = padding,
+                start = dimensionResource(id = R.dimen.padding_small),
+                end = dimensionResource(id = R.dimen.padding_small)
+            ),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.SemiBold
         )
-        TextField(
+        OutlinedTextField(
             value = text,
             onValueChange = onValueChanged,
-            modifier = Modifier.fillMaxWidth()
-                .height(52.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp),
             isError = isTextEmpty,
             label = {
                 Text(if (isTextEmpty) stringResource(errorText) else label)
@@ -160,8 +172,7 @@ fun InputField(
                 if (isTextEmpty) Text(label)
             },
             shape = RoundedCornerShape(
-                topStart = 8.dp,
-                topEnd = 8.dp
+                8.dp
             ),
             keyboardOptions = keyboardOptions,
             singleLine = true,

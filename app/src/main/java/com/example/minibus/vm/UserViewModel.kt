@@ -86,7 +86,7 @@ class UserViewModel(private val dataStoreManager: DataStoreManager) : ViewModel(
                         Log.d("UpdateUser", "changeNotification called")
                         fieldIsUpdated = false
                     }
-                    dataStoreManager.saveUserData(
+                    dataStoreManager.updateUserData(
                         userUiState.value.firstName,
                         userUiState.value.lastName,
                         userUiState.value.phone
@@ -96,11 +96,38 @@ class UserViewModel(private val dataStoreManager: DataStoreManager) : ViewModel(
 
         }
     }
-
     fun addUser() {
-        if (checkFieldsForAdd()) {
+        if (checkFieldsForAdd()){
+
+        }
+    }
+    fun logInUser() {
+        if (checkFieldsForLogIn()) {
             viewModelScope.launch {
                 buttonState = ButtonUiState.Loading
+
+                val call = MinibusApi.retrofitService.logIn(
+                    userUiState.value.password,
+                    userUiState.value.phone
+                )
+
+                /*call.enqueue(object : Callback<User> {
+                    override fun onResponse(call: Call<User>, response: Response<User>) {
+
+                        if (response.isSuccessful) {
+                            val user = response.body()
+                            viewModelScope.launch {
+                                user?.let { safeUser ->
+                                    dataStoreManager.saveUserData(safeUser)
+                                }
+                            }
+                        } else {
+                            buttonState = ButtonUiState.Defolt
+                        }
+                    }
+                    override fun onFailure(call: Call<User>, t: Throwable) {
+                    }
+                })*/
             }
         }
     }
@@ -257,6 +284,12 @@ class UserViewModel(private val dataStoreManager: DataStoreManager) : ViewModel(
         val firstNameIsEmpty = firstNameIsEmpty()
         val phoneIsEmpty = phoneIsEmpty()
         return !lastNameIsEmpty && !firstNameIsEmpty && !phoneIsEmpty
+    }
+
+    private fun checkFieldsForLogIn(): Boolean {
+        val phoneIsEmpty = phoneIsEmpty()
+        val passwordIsEmpty = passwordIsEmpty()
+        return !phoneIsEmpty && !passwordIsEmpty
     }
 
 
