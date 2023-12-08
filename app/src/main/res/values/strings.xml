@@ -54,6 +54,8 @@
     <string name="reenter_password">Введите пароль еще раз</string>
     <string name="sign_in">Войти</string>
     <string name="sign_up">Зарегистрироваться</string>
+    <string name="log_out_profile">Выйти из профиля</string>
+    <string name="change_password">Изменить пароль</string>
 
 
 </resources>

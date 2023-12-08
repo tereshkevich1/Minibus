@@ -98,57 +98,69 @@ fun LoginScreen(userViewModel: UserViewModel, navController: NavController) {
         ) {
             when (userViewModel.buttonState) {
                 ButtonUiState.Defolt -> Text(text = stringResource(R.string.sign_in))
-                ButtonUiState.Error -> TODO()
+                ButtonUiState.Error -> Text(text = "произошла хуяка")
                 ButtonUiState.Loading -> ButtonProgressIndicator()
-                ButtonUiState.Success -> navController.navigate("option")
+                ButtonUiState.Success -> {
+                    Text(text = stringResource(R.string.sign_in))
+                    navController.navigate("option"){
+
+                        popUpTo("logInScreen") {
+                            saveState = true
+                            inclusive = true
+                        }
+                        // Avoid multiple copies of the same destination when
+                        // reselecting the same item
+                        launchSingleTop = true
+                        // Restore state when reselecting a previously selected item
+                        restoreState = true
+                    }
+                    }
+                }
             }
-
+            RegistrationRow(registrationOnClick = {navController.navigate("signUpScreen")})
         }
-
-        RegistrationRow(registrationOnClick = {})
     }
-}
 
-@Composable
-fun RegistrationRow(registrationOnClick: () -> Unit) {
-    var clicked by remember { mutableStateOf(false) }
-    val textColor by animateColorAsState(
-        targetValue = if (clicked) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.outline,
-        label = ""
-    )
-
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-
-
-        val interactionSource = remember { MutableInteractionSource() }
-        val isPressed = interactionSource.collectIsPressedAsState()
-        val textColor =
-            if (isPressed.value) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.outline
-
-        Text(
-            text = stringResource(R.string.sign_up),
-            textDecoration = TextDecoration.Underline,
-            modifier = Modifier.clickable(
-                interactionSource = interactionSource,
-                indication = null, // убираем стандартное выделение
-                onClick = { registrationOnClick() }
-            ),
-            color = textColor
+    @Composable
+    fun RegistrationRow(registrationOnClick: () -> Unit) {
+        var clicked by remember { mutableStateOf(false) }
+        val textColor by animateColorAsState(
+            targetValue = if (clicked) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.outline,
+            label = ""
         )
 
-    }
-}
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
 
 
-@Composable
-@Preview
-fun LoginScreenPreview() {
-    MinibusTheme(useDarkTheme = false) {
-        Surface(modifier = Modifier.fillMaxSize()) {
-            val dataStoreManager = DataStoreManager(LocalContext.current)
-            val userViewModel: UserViewModel =
-                viewModel(factory = UserViewModelFactory(dataStoreManager))
-            LoginScreen(userViewModel = userViewModel, rememberNavController())
+            val interactionSource = remember { MutableInteractionSource() }
+            val isPressed = interactionSource.collectIsPressedAsState()
+            val textColor =
+                if (isPressed.value) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.outline
+
+            Text(
+                text = stringResource(R.string.sign_up),
+                textDecoration = TextDecoration.Underline,
+                modifier = Modifier.clickable(
+                    interactionSource = interactionSource,
+                    indication = null, // убираем стандартное выделение
+                    onClick = { registrationOnClick() }
+                ),
+                color = textColor
+            )
+
         }
     }
-}
+
+
+    @Composable
+    @Preview
+    fun LoginScreenPreview() {
+        MinibusTheme(useDarkTheme = false) {
+            Surface(modifier = Modifier.fillMaxSize()) {
+                val dataStoreManager = DataStoreManager(LocalContext.current)
+                val userViewModel: UserViewModel =
+                    viewModel(factory = UserViewModelFactory(dataStoreManager))
+                LoginScreen(userViewModel = userViewModel, rememberNavController())
+            }
+        }
+    }

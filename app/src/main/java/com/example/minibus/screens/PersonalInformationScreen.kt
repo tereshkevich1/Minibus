@@ -49,6 +49,9 @@ import kotlinx.coroutines.delay
 @Composable
 fun PersonalInformationScreen(userViewModel: UserViewModel) {
 
+    LaunchedEffect(Unit) {
+        userViewModel.getUserData()
+    }
     val userState by userViewModel.userUiState.collectAsState()
 
     Column(
@@ -99,6 +102,14 @@ fun PersonalInformationScreen(userViewModel: UserViewModel) {
             errorText = userViewModel.errorPhone
         )
 
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = dimensionResource(id = R.dimen.padding_extra_small))) {
+            LogOutProfilePanel(stringResource(R.string.change_password), onClick = {})
+            Spacer(modifier = Modifier.weight(1f))
+            LogOutProfilePanel(stringResource(R.string.log_out_profile), onClick = {})
+        }
+
         //ErrorPanel()
 
 
@@ -115,9 +126,8 @@ fun PersonalInformationScreen(userViewModel: UserViewModel) {
         }
 
 
-
         Spacer(modifier = Modifier.weight(1f))
-        DeleteProfilePanel()
+
         Button(
             onClick = {
                 userViewModel.updateUser()
@@ -191,15 +201,11 @@ fun ErrorPanel(serverErrorIsVisible: Boolean) {
 }
 
 @Composable
-fun DeleteProfilePanel() {
+fun LogOutProfilePanel(label: String, onClick: () -> Unit) {
     Row(
-        horizontalArrangement = Arrangement.Center, modifier = Modifier
-            .padding(
-                bottom = dimensionResource(
-                    id = R.dimen.padding_large_medium
-                )
-            )
-            .fillMaxWidth()
+        horizontalArrangement = Arrangement.Start, modifier = Modifier
+
+
     ) {
         val interactionSource = remember { MutableInteractionSource() }
         val isPressed = interactionSource.collectIsPressedAsState()
@@ -207,11 +213,11 @@ fun DeleteProfilePanel() {
             if (isPressed.value) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.outline
 
         Text(
-            text = stringResource(R.string.delete_profile),
+            text = label,
             textDecoration = TextDecoration.Underline,
             modifier = Modifier.clickable(
                 interactionSource = interactionSource,
-                indication = null, // убираем стандартное выделение
+                indication = null,
                 onClick = { /* обработчик клика */ }
             ),
             color = textColor

@@ -24,7 +24,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
@@ -58,7 +57,6 @@ fun CheckoutScreen(
     navController: NavController,
     snackbarDelegate: SnackbarDelegate,
     tripId: Int,
-
     ) {
 
     val checkoutViewModel: CheckoutViewModel =
@@ -67,7 +65,6 @@ fun CheckoutScreen(
     val details = checkoutViewModel.getData()
     val isLoading by rememberUpdatedState(checkoutViewModel.isLoading)
 
-    val userId = userViewModel.getUserId().collectAsState(initial = 0).value
 
     if (!isLoading && details != null) {
         OrderPanel(
@@ -78,7 +75,7 @@ fun CheckoutScreen(
             onOrderButtonClick = {
                 checkoutViewModel.addOrder(
                     tripId,
-                    userId ?: 0,
+                    userViewModel.userUiState.value.userId,
                     uiState.value.numberAdultsSeats + uiState.value.numberChildrenSeats,
                     uiState.value.departurePointId,
                     uiState.value.arrivalPointId

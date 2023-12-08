@@ -1,5 +1,6 @@
 package com.example.minibus.navigation
 
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -29,8 +30,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.minibus.R
+import com.example.minibus.screens.LoginScreen
 import com.example.minibus.screens.PersonalInformationScreen
 import com.example.minibus.screens.ProfileSetupScreen
+import com.example.minibus.screens.RegistrationScreen
 import com.example.minibus.snackbarClasses.SnackbarDelegate
 import com.example.minibus.state_models.TicketUiState
 import com.example.minibus.vm.OrderViewModel
@@ -53,7 +56,11 @@ fun MainScreen(userViewModel: UserViewModel) {
 
 
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
-    val showTopBar = currentRoute != BottomNavigationScreen.RouteConfigurationScreen.route
+    fun showTopBar() =
+        !((currentRoute == BottomNavigationScreen.RouteConfigurationScreen.route) || (currentRoute == "logInScreen"))
+    fun showBottomBar() =
+        !((currentRoute == "signUpScreen") || (currentRoute == "logInScreen"))
+
     val topBarTitle = getTitleForRoute(currentRoute, uiState)
     val showTopBarBackIcon = items.any { it.route == currentRoute }
 
@@ -64,6 +71,11 @@ fun MainScreen(userViewModel: UserViewModel) {
     val snackbarDelegate = remember {
         SnackbarDelegate(snackbarHostState, coroutineScope)
     }
+
+    val startDestination =
+        if (userViewModel.userUiState.collectAsState().value.userId > 0) "option" else "logInScreen"
+
+    Log.d("startDestination", startDestination)
 
     Scaffold(
         snackbarHost = {
@@ -84,7 +96,7 @@ fun MainScreen(userViewModel: UserViewModel) {
             }
         },
         topBar = {
-            if (showTopBar) {
+            if (showTopBar()) {
                 CenterAlignedTopAppBar(
                     title = {
                         Text(
@@ -109,12 +121,15 @@ fun MainScreen(userViewModel: UserViewModel) {
             }
         },
         bottomBar = {
-            BottomNavigationBar(navController, items)
+            if (showBottomBar()) {
+                BottomNavigationBar(navController, items)
+            }
         }
     ) { innerPadding ->
-        MainScreenNavigationConfigurations(
+        NavigationConfigurations(
             navController, Modifier.padding(innerPadding),
-            viewModel, uiState, userViewModel, snackbarDelegate
+            viewModel, uiState, userViewModel, snackbarDelegate,
+            startDestination
         )
     }
 }
@@ -137,18 +152,20 @@ fun getTitleForRoute(route: String?, uiState: State<TicketUiState>): String {
 
 
 @Composable
-private fun MainScreenNavigationConfigurations(
+private fun NavigationConfigurations(
     navController: NavHostController,
     modifier: Modifier,
     viewModel: OrderViewModel,
     uiState: State<TicketUiState>,
     userViewModel: UserViewModel,
-    snackbarDelegate: SnackbarDelegate
+    snackbarDelegate: SnackbarDelegate,
+    startDestination: String
 
 ) {
+    Log.d("authorizationCheck", userViewModel.authorizationCheck().toString())
     NavHost(
         navController,
-        startDestination = "option",
+        startDestination = startDestination,
         modifier = modifier
     ) {
 
@@ -156,15 +173,25 @@ private fun MainScreenNavigationConfigurations(
         historyGraph(navController, viewModel, uiState)
         composable(BottomNavigationScreen.ContactsScreen.route) {
 
-            ProfileSetupScreen(navController) }
+            ProfileSetupScreen(navController)
+        }
         composable(BottomNavigationScreen.ProfileSetupScreen.route) {
-
+            //userViewModel.getUserData()
+            Log.d("profile", "navigate to profile")
             PersonalInformationScreen(
                 userViewModel
             )
         }
+        composable("logInScreen") {
+            LoginScreen(userViewModel, navController)
+        }
+        composable("signUpScreen") {
+            RegistrationScreen(userViewModel, navController)
+        }
     }
 }
+
+
 
 
 

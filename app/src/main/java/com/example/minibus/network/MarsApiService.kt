@@ -17,6 +17,7 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import okhttp3.MediaType.Companion.toMediaType
+import retrofit2.Call
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.http.GET
@@ -98,19 +99,27 @@ interface MinibusApiService {
 
     @POST("/order/add/{userId}/{tripId}/{numberTickets}/{status}/{departureStopId}/{arrivalStopId}")
     suspend fun addOrder(
-    @Path("userId") userId: Int,
-    @Path("tripId") tripId: Int,
-    @Path("numberTickets") numberTickets: Int,
-    @Path("status") status: Int,
-    @Path("departureStopId") departureStopId: Int,
-    @Path("arrivalStopId") arrivalStopId: Int,
+        @Path("userId") userId: Int,
+        @Path("tripId") tripId: Int,
+        @Path("numberTickets") numberTickets: Int,
+        @Path("status") status: Int,
+        @Path("departureStopId") departureStopId: Int,
+        @Path("arrivalStopId") arrivalStopId: Int,
     ): Response<Void>
 
     @GET("user/{phoneNumber}/{password}/logIn")
-    suspend fun logIn(
+    fun logIn(
         @Path("password") password: String,
         @Path("phoneNumber") phoneNumber: String
-    ): User
+    ): Call<User>
+
+    @POST("/user/{firstName}/{lastName}/{phoneNumber}/{password}/addNewUser")
+    fun signUp(
+        @Path("firstName") firstName: String,
+        @Path("lastName") lastName: String,
+        @Path("phoneNumber") phoneNumber: String,
+        @Path("password") password: String
+    ): Call<User>
 
 }
 
@@ -153,10 +162,6 @@ object JsonFormat {
             contextual(LocalDate::class, LocalDateSerializer)
             contextual(LocalTime::class, LocalTimeSerializer)
         }
-        // Вы можете добавить другие настройки Json, например:
-        // encodeDefaults = true
-        // ignoreUnknownKeys = true
-        // и т.д.
     }
 }
 

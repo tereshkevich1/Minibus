@@ -37,6 +37,8 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.minibus.R
 import com.example.minibus.dataStoreManager.DataStoreManager
 import com.example.minibus.state_models.ButtonUiState
@@ -45,7 +47,7 @@ import com.example.minibus.vm.UserViewModel
 import com.example.minibus.vm.UserViewModelFactory
 
 @Composable
-fun RegistrationScreen(userViewModel: UserViewModel) {
+fun RegistrationScreen(userViewModel: UserViewModel, navController: NavController) {
 
     val userState by userViewModel.userUiState.collectAsState()
 
@@ -54,7 +56,6 @@ fun RegistrationScreen(userViewModel: UserViewModel) {
             .padding(dimensionResource(id = R.dimen.padding_medium))
             .fillMaxWidth()
     ) {
-        ScreenTitle("Регистрация")
         InputField(
             title = stringResource(id = R.string.user_first_name),
             text = userState.firstName,
@@ -111,7 +112,8 @@ fun RegistrationScreen(userViewModel: UserViewModel) {
             )
 
         PasswordInputField(
-            title = stringResource(id = R.string.password_confirmation_field), text = userState.confirmationPasswordField,
+            title = stringResource(id = R.string.password_confirmation_field),
+            text = userState.confirmationPasswordField,
             label = stringResource(id = R.string.reenter_password),
             modifier = Modifier.padding(
                 bottom =
@@ -135,9 +137,22 @@ fun RegistrationScreen(userViewModel: UserViewModel) {
         ) {
             when (userViewModel.buttonState) {
                 ButtonUiState.Defolt -> Text(text = stringResource(R.string.create_account))
-                ButtonUiState.Error -> TODO()
+                ButtonUiState.Error -> Text(text = "чето не то")
                 ButtonUiState.Loading -> ButtonProgressIndicator()
-                ButtonUiState.Success -> TODO()
+                ButtonUiState.Success -> {
+                    Text(text = stringResource(R.string.create_account))
+                    navController.navigate("option") {
+                        popUpTo("signUpScreen") {
+                            saveState = true
+                            inclusive = true
+                        }
+                        // Avoid multiple copies of the same destination when
+                        // reselecting the same item
+                        launchSingleTop = true
+                        // Restore state when reselecting a previously selected item
+                        restoreState = true
+                    }
+                }
             }
 
         }
@@ -216,7 +231,7 @@ fun RegistrationScreenDarkPreview() {
         val userViewModel: UserViewModel =
             viewModel(factory = UserViewModelFactory(dataStoreManager))
         Surface(modifier = Modifier.fillMaxSize()) {
-            RegistrationScreen(userViewModel)
+            RegistrationScreen(userViewModel, rememberNavController())
         }
 
     }

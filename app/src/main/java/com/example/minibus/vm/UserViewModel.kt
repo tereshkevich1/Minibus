@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.minibus.R
 import com.example.minibus.dataStoreManager.DataStoreManager
+import com.example.minibus.models.User
 import com.example.minibus.network.MinibusApi
 import com.example.minibus.state_models.ButtonUiState
 import com.example.minibus.state_models.UserUiState
@@ -19,6 +20,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class UserViewModel(private val dataStoreManager: DataStoreManager) : ViewModel() {
 
@@ -38,10 +42,9 @@ class UserViewModel(private val dataStoreManager: DataStoreManager) : ViewModel(
 
     init {
         getUserData()
-        Log.d("UserViewModel", "create")
     }
 
-    private fun getUserData() {
+    fun getUserData() {
         viewModelScope.launch {
             dataStoreManager.getUserData().collect { user ->
                 _userUiState.update { current ->
@@ -58,7 +61,7 @@ class UserViewModel(private val dataStoreManager: DataStoreManager) : ViewModel(
     }
 
     fun getUserId() =
-        dataStoreManager.getUserId()
+        dataStoreManager.check()
 
 
     // Make checkUpdate a suspend function and return a Boolean
@@ -96,40 +99,81 @@ class UserViewModel(private val dataStoreManager: DataStoreManager) : ViewModel(
 
         }
     }
-    fun addUser() {
-        if (checkFieldsForAdd()){
 
+    fun addUser() {
+        if (checkFieldsForAdd()) {
+            buttonState = ButtonUiState.Loading
+            val call = MinibusApi.retrofitService.signUp(
+                userUiState.value.firstName,
+                userUiState.value.lastName,
+                userUiState.value.phone,
+                userUiState.value.password
+            )
+
+            call.enqueue(object : Callback<User> {
+                override fun onResponse(call: Call<User>, response: Response<User>) {
+                    if (response.isSuccessful) {
+                        val user = response.body()
+                        if (user != null) {
+                            buttonState = ButtonUiState.Success
+                            viewModelScope.launch { dataStoreManager.saveUserData(user) }
+                        } else {
+                            ButtonUiState.Error
+                        }
+                    } else {
+                        Log.d("response code ", response.code().toString());
+                        ButtonUiState.Error
+                    }
+                }
+
+                override fun onFailure(call: Call<User>, t: Throwable) {
+                    Log.d("Failure", t.toString())
+                    buttonState = ButtonUiState.Error
+                }
+
+            })
         }
     }
+
+
     fun logInUser() {
         if (checkFieldsForLogIn()) {
-            viewModelScope.launch {
-                buttonState = ButtonUiState.Loading
 
-                val call = MinibusApi.retrofitService.logIn(
-                    userUiState.value.password,
-                    userUiState.value.phone
-                )
+            buttonState = ButtonUiState.Loading
 
-                /*call.enqueue(object : Callback<User> {
-                    override fun onResponse(call: Call<User>, response: Response<User>) {
+            val call = MinibusApi.retrofitService.logIn(
+                userUiState.value.password,
+                userUiState.value.phone
+            )
 
-                        if (response.isSuccessful) {
-                            val user = response.body()
-                            viewModelScope.launch {
-                                user?.let { safeUser ->
-                                    dataStoreManager.saveUserData(safeUser)
-                                }
-                            }
+            call.enqueue(object : Callback<User> {
+                override fun onResponse(call: Call<User>, response: Response<User>) {
+
+                    buttonState = if (response.isSuccessful) {
+                        val user = response.body()
+                        if (user != null) {
+                            viewModelScope.launch { dataStoreManager.saveUserData(user) }
+                            Log.d("logInUser",user.toString())
+                            ButtonUiState.Success
                         } else {
-                            buttonState = ButtonUiState.Defolt
+                            ButtonUiState.Error
                         }
+                    } else {
+                        Log.d("response code ", response.code().toString());
+                        ButtonUiState.Error
                     }
-                    override fun onFailure(call: Call<User>, t: Throwable) {
-                    }
-                })*/
-            }
+                }
+
+                override fun onFailure(call: Call<User>, t: Throwable) {
+                    Log.d("Failure", t.toString())
+                    buttonState = ButtonUiState.Error
+                }
+            })
         }
+    }
+
+    fun authorizationCheck(): Boolean {
+        return dataStoreManager.check()
     }
 
 

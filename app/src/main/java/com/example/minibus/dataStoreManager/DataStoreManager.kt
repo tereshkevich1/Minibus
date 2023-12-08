@@ -9,7 +9,6 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.minibus.models.User
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 
@@ -19,7 +18,7 @@ class DataStoreManager(private val context: Context) {
 
     suspend fun updateUserData(firstName: String, lastName: String, phoneNumber: String) {
         context.dataStore.edit { preferences ->
-           // preferences[PreferencesKeys.USER_ID] = 3
+            //preferences[PreferencesKeys.USER_ID] = 3
             preferences[PreferencesKeys.PHONE_KEY] = phoneNumber
             preferences[PreferencesKeys.FIRST_NAME_KEY] = firstName
             preferences[PreferencesKeys.LAST_NAME_KEY] = lastName
@@ -45,7 +44,7 @@ class DataStoreManager(private val context: Context) {
             )
         }
 
-    suspend fun saveUserData(user: User){
+    suspend fun saveUserData(user: User) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.USER_ID] = user.id
             preferences[PreferencesKeys.PHONE_KEY] = user.phoneNumber
@@ -53,8 +52,15 @@ class DataStoreManager(private val context: Context) {
             preferences[PreferencesKeys.LAST_NAME_KEY] = user.lastName
         }
     }
-    fun getUserId(): Flow<Int?> = context.dataStore.data.map { preferences ->
-        return@map preferences[PreferencesKeys.USER_ID]
+
+    fun check(): Boolean {
+        var id: Int? = null
+        context.dataStore.data.map { preferences ->
+            id = preferences[PreferencesKeys.USER_ID]
+        }
+        return if (id != null) {
+            id!! > 0
+        } else false
     }
 
 }
