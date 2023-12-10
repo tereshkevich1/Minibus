@@ -13,10 +13,14 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.dimensionResource
@@ -31,6 +35,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.minibus.R
+import com.example.minibus.screens.LoadingScreen
 import com.example.minibus.screens.LoginScreen
 import com.example.minibus.screens.PersonalInformationScreen
 import com.example.minibus.screens.ProfileSetupScreen
@@ -39,6 +44,7 @@ import com.example.minibus.snackbarClasses.SnackbarDelegate
 import com.example.minibus.state_models.TicketUiState
 import com.example.minibus.vm.OrderViewModel
 import com.example.minibus.vm.UserViewModel
+import kotlinx.coroutines.delay
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,12 +61,30 @@ fun MainScreen(userViewModel: UserViewModel) {
     val viewModel: OrderViewModel = viewModel()
     val uiState = viewModel.uiState.collectAsState()
 
+    var startDestination by remember { mutableStateOf("loadingScreen") }
+    var isLoading by remember { mutableStateOf(true) }
+    LaunchedEffect(key1 = Unit) {
+        delay(1000)
+        isLoading = false
+        startDestination = if (userViewModel.userUiState.value.userId > 0) {
+            "option"
+        } else {
+            "logInScreen"
+        }
+
+        navController.navigate(startDestination) {
+            popUpTo(navController.graph.startDestinationId) {
+                inclusive = true
+            }
+        }
+    }
 
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
-    fun showTopBar() =
-        !((currentRoute == BottomNavigationScreen.RouteConfigurationScreen.route) || (currentRoute == "logInScreen"))
-    fun showBottomBar() =
-        !((currentRoute == "signUpScreen") || (currentRoute == "logInScreen") || (currentRoute == "addPassengers"))
+    fun showTopBar() =!isLoading &&
+            !((currentRoute == BottomNavigationScreen.RouteConfigurationScreen.route) || (currentRoute == "logInScreen") || (currentRoute == "loadingScreen"))
+
+    fun showBottomBar() =!isLoading &&
+            !((currentRoute == "signUpScreen") || (currentRoute == "logInScreen") || (currentRoute == "addPassengers") || (currentRoute == "loadingScreen"))
 
     val topBarTitle = getTitleForRoute(currentRoute, uiState)
     val showTopBarBackIcon = items.any { it.route == currentRoute }
@@ -73,9 +97,6 @@ fun MainScreen(userViewModel: UserViewModel) {
         SnackbarDelegate(snackbarHostState, coroutineScope)
     }
 
-    val startDestination =
-        if (userViewModel.userUiState.collectAsState().value.userId > 0) "option" else "logInScreen"
-
     Log.d("startDestination", startDestination)
 
     Scaffold(
@@ -87,7 +108,11 @@ fun MainScreen(userViewModel: UserViewModel) {
 
                 Snackbar(
                     containerColor = backgroundColor, modifier = Modifier
-                        .padding(bottom = bottomPadding, start = startEndPadding, end = startEndPadding)
+                        .padding(
+                            bottom = bottomPadding,
+                            start = startEndPadding,
+                            end = startEndPadding
+                        )
                 ) {
                     Text(
                         text = it.visuals.message,
@@ -166,7 +191,7 @@ private fun NavigationConfigurations(
     startDestination: String
 
 ) {
-    Log.d("authorizationCheck", userViewModel.authorizationCheck().toString())
+    // Log.d("authorizationCheck", userViewModel.authorizationCheck().toString())
     NavHost(
         navController,
         startDestination = startDestination,
@@ -183,7 +208,8 @@ private fun NavigationConfigurations(
             //userViewModel.getUserData()
             Log.d("profile", "navigate to profile")
             PersonalInformationScreen(
-                userViewModel
+                userViewModel,
+                navController
             )
         }
         composable("logInScreen") {
@@ -191,6 +217,9 @@ private fun NavigationConfigurations(
         }
         composable("signUpScreen") {
             RegistrationScreen(userViewModel, navController)
+        }
+        composable("loadingScreen") {
+            LoadingScreen()
         }
     }
 }

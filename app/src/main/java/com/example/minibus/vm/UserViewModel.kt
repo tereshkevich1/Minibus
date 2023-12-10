@@ -41,18 +41,33 @@ class UserViewModel(private val dataStoreManager: DataStoreManager) : ViewModel(
 
     var logInButtonState: ButtonUiState by mutableStateOf(ButtonUiState.Defolt)
     var registrationButtonState: ButtonUiState by mutableStateOf(ButtonUiState.Defolt)
-    //val profileButtonState: ButtonUiState by mutableStateOf(ButtonUiState.Defolt)
+
 
     init {
         getUserData()
     }
 
-    fun clearFields() {
+    fun setDefaultLogInButtonState(){
+        logInButtonState = ButtonUiState.Defolt
+    }
+    fun updateConfirmationPasswordField() {
         _userUiState.update { current ->
             current.copy(
                 confirmationPasswordField = current.password
             )
         }
+    }
+    
+    fun clearFields(){
+        _userUiState.update { current ->
+            current.copy(
+                confirmationPasswordField = "",
+                password = "",
+                firstName = "",
+                lastName = "",
+                phone = ""
+            )
+        }  
     }
 
     fun getUserData() {
@@ -71,8 +86,13 @@ class UserViewModel(private val dataStoreManager: DataStoreManager) : ViewModel(
         }
     }
 
-    fun getUserId() =
-        dataStoreManager.check()
+    fun clearUserData(onCleared: () -> Unit) {
+        viewModelScope.launch {
+            dataStoreManager.clearUserData()
+            onCleared()
+        }
+    }
+
 
 
     // Make checkUpdate a suspend function and return a Boolean
@@ -182,11 +202,6 @@ class UserViewModel(private val dataStoreManager: DataStoreManager) : ViewModel(
             })
         }
     }
-
-    fun authorizationCheck(): Boolean {
-        return dataStoreManager.check()
-    }
-
 
     fun changeNotification(turn: Boolean) {
         showNotification = turn

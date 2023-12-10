@@ -114,7 +114,6 @@ fun LoginScreen(
                     Text(text = stringResource(R.string.sign_in))
                     errorVisible = true
                 }
-
                 ButtonUiState.Loading -> ButtonProgressIndicator()
                 ButtonUiState.Success -> {
                     Text(text = stringResource(R.string.sign_in))
@@ -127,11 +126,12 @@ fun LoginScreen(
                         launchSingleTop = true
                         restoreState = true
                     }
+                    userViewModel.setDefaultLogInButtonState()
                 }
             }
         }
         RegistrationRow(registrationOnClick = {
-            userViewModel.clearFields()
+            userViewModel.updateConfirmationPasswordField()
             navController.navigate("signUpScreen") })
     }
 }

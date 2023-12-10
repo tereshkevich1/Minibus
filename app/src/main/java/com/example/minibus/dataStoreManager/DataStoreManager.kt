@@ -53,6 +53,16 @@ class DataStoreManager(private val context: Context) {
         }
     }
 
+    suspend fun clearUserData(){
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.USER_ID] = 0
+            preferences[PreferencesKeys.PHONE_KEY] = ""
+            preferences[PreferencesKeys.FIRST_NAME_KEY] = ""
+            preferences[PreferencesKeys.LAST_NAME_KEY] = ""
+        }
+    }
+
+
     fun check(): Boolean {
         var id: Int? = null
         context.dataStore.data.map { preferences ->

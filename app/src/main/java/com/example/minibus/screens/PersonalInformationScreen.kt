@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,6 +40,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.minibus.R
 import com.example.minibus.dataStoreManager.DataStoreManager
 import com.example.minibus.ui.theme.MinibusTheme
@@ -47,13 +50,13 @@ import com.example.minibus.vm.UserViewModelFactory
 import kotlinx.coroutines.delay
 
 @Composable
-fun PersonalInformationScreen(userViewModel: UserViewModel) {
+fun PersonalInformationScreen(userViewModel: UserViewModel, navController: NavHostController) {
 
     LaunchedEffect(Unit) {
         userViewModel.getUserData()
     }
     val userState by userViewModel.userUiState.collectAsState()
-
+    val openDialog = remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .padding(dimensionResource(id = R.dimen.padding_medium))
@@ -102,12 +105,17 @@ fun PersonalInformationScreen(userViewModel: UserViewModel) {
             errorText = userViewModel.errorPhone
         )
 
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = dimensionResource(id = R.dimen.padding_extra_small))) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = dimensionResource(id = R.dimen.padding_extra_small))
+        ) {
             LogOutProfilePanel(stringResource(R.string.change_password), onClick = {})
             Spacer(modifier = Modifier.weight(1f))
-            LogOutProfilePanel(stringResource(R.string.log_out_profile), onClick = {})
+            LogOutProfilePanel(
+                stringResource(R.string.log_out_profile),
+                onClick = { openDialog.value = true
+                    Log.d("openDialog",openDialog.value.toString())})
         }
 
         //ErrorPanel()
@@ -138,7 +146,32 @@ fun PersonalInformationScreen(userViewModel: UserViewModel) {
             Text(text = stringResource(R.string.save_text))
         }
 
+
+
+        when {
+            openDialog.value -> {
+                ConfirmationDialog(
+                    onDismissRequest = { openDialog.value = false },
+                    onConfirmation = {
+                        userViewModel.clearFields()
+                        userViewModel.clearUserData{
+                            navController.navigate("logInScreen") {
+                                popUpTo("Search") {
+                                    inclusive = false
+                                }
+                                launchSingleTop = true
+                            }
+                        }
+                    },
+                    dialogTitle = "Выход из аккаунта",
+                    dialogText = "Вы действительно хотите выйти из аккаунта?"
+                )
+            }
+
+        }
+
     }
+
 }
 
 
@@ -218,7 +251,7 @@ fun LogOutProfilePanel(label: String, onClick: () -> Unit) {
             modifier = Modifier.clickable(
                 interactionSource = interactionSource,
                 indication = null,
-                onClick = { /* обработчик клика */ }
+                onClick = { onClick() }
             ),
             color = textColor
         )
@@ -256,7 +289,7 @@ fun PersonalInformationScreenDarkPreview() {
     val dataStoreManager = DataStoreManager(LocalContext.current)
     val userViewModel: UserViewModel = viewModel(factory = UserViewModelFactory(dataStoreManager))
     MinibusTheme(useDarkTheme = true) {
-        PersonalInformationScreen(userViewModel)
+        PersonalInformationScreen(userViewModel, rememberNavController())
     }
 
 }
@@ -268,7 +301,7 @@ fun PersonalInformationScreenLightPreview() {
     val userViewModel: UserViewModel = viewModel(factory = UserViewModelFactory(dataStoreManager))
     MinibusTheme(useDarkTheme = true) {
 
-        PersonalInformationScreen(userViewModel)
+        PersonalInformationScreen(userViewModel, rememberNavController())
 
     }
 
