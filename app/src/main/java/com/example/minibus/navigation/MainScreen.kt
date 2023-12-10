@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -59,7 +60,7 @@ fun MainScreen(userViewModel: UserViewModel) {
     fun showTopBar() =
         !((currentRoute == BottomNavigationScreen.RouteConfigurationScreen.route) || (currentRoute == "logInScreen"))
     fun showBottomBar() =
-        !((currentRoute == "signUpScreen") || (currentRoute == "logInScreen"))
+        !((currentRoute == "signUpScreen") || (currentRoute == "logInScreen") || (currentRoute == "addPassengers"))
 
     val topBarTitle = getTitleForRoute(currentRoute, uiState)
     val showTopBarBackIcon = items.any { it.route == currentRoute }
@@ -81,9 +82,12 @@ fun MainScreen(userViewModel: UserViewModel) {
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState) {
                 val backgroundColor = snackbarDelegate.snackbarBackgroundColor
+                val bottomPadding = snackbarDelegate.snackbarBottomPadding
+                val startEndPadding = dimensionResource(id = R.dimen.padding_medium)
+
                 Snackbar(
                     containerColor = backgroundColor, modifier = Modifier
-                        .padding(12.dp)
+                        .padding(bottom = bottomPadding, start = startEndPadding, end = startEndPadding)
                 ) {
                     Text(
                         text = it.visuals.message,
@@ -183,7 +187,7 @@ private fun NavigationConfigurations(
             )
         }
         composable("logInScreen") {
-            LoginScreen(userViewModel, navController)
+            LoginScreen(userViewModel, navController, snackbarDelegate)
         }
         composable("signUpScreen") {
             RegistrationScreen(userViewModel, navController)

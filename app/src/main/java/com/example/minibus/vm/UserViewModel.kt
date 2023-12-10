@@ -38,10 +38,21 @@ class UserViewModel(private val dataStoreManager: DataStoreManager) : ViewModel(
 
     var errorPassword by mutableIntStateOf(0)
     var errorConfirmationPassword by mutableIntStateOf(0)
-    var buttonState: ButtonUiState by mutableStateOf(ButtonUiState.Defolt)
+
+    var logInButtonState: ButtonUiState by mutableStateOf(ButtonUiState.Defolt)
+    var registrationButtonState: ButtonUiState by mutableStateOf(ButtonUiState.Defolt)
+    //val profileButtonState: ButtonUiState by mutableStateOf(ButtonUiState.Defolt)
 
     init {
         getUserData()
+    }
+
+    fun clearFields() {
+        _userUiState.update { current ->
+            current.copy(
+                confirmationPasswordField = current.password
+            )
+        }
     }
 
     fun getUserData() {
@@ -102,7 +113,7 @@ class UserViewModel(private val dataStoreManager: DataStoreManager) : ViewModel(
 
     fun addUser() {
         if (checkFieldsForAdd()) {
-            buttonState = ButtonUiState.Loading
+            registrationButtonState = ButtonUiState.Loading
             val call = MinibusApi.retrofitService.signUp(
                 userUiState.value.firstName,
                 userUiState.value.lastName,
@@ -115,20 +126,20 @@ class UserViewModel(private val dataStoreManager: DataStoreManager) : ViewModel(
                     if (response.isSuccessful) {
                         val user = response.body()
                         if (user != null) {
-                            buttonState = ButtonUiState.Success
+                            registrationButtonState = ButtonUiState.Success
                             viewModelScope.launch { dataStoreManager.saveUserData(user) }
                         } else {
-                            ButtonUiState.Error
+                            registrationButtonState = ButtonUiState.Error
                         }
                     } else {
                         Log.d("response code ", response.code().toString());
-                        ButtonUiState.Error
+                        registrationButtonState = ButtonUiState.Error
                     }
                 }
 
                 override fun onFailure(call: Call<User>, t: Throwable) {
                     Log.d("Failure", t.toString())
-                    buttonState = ButtonUiState.Error
+                    registrationButtonState = ButtonUiState.Error
                 }
 
             })
@@ -139,7 +150,7 @@ class UserViewModel(private val dataStoreManager: DataStoreManager) : ViewModel(
     fun logInUser() {
         if (checkFieldsForLogIn()) {
 
-            buttonState = ButtonUiState.Loading
+            logInButtonState = ButtonUiState.Loading
 
             val call = MinibusApi.retrofitService.logIn(
                 userUiState.value.password,
@@ -149,11 +160,11 @@ class UserViewModel(private val dataStoreManager: DataStoreManager) : ViewModel(
             call.enqueue(object : Callback<User> {
                 override fun onResponse(call: Call<User>, response: Response<User>) {
 
-                    buttonState = if (response.isSuccessful) {
+                    logInButtonState = if (response.isSuccessful) {
                         val user = response.body()
                         if (user != null) {
                             viewModelScope.launch { dataStoreManager.saveUserData(user) }
-                            Log.d("logInUser",user.toString())
+                            Log.d("logInUser", user.toString())
                             ButtonUiState.Success
                         } else {
                             ButtonUiState.Error
@@ -166,7 +177,7 @@ class UserViewModel(private val dataStoreManager: DataStoreManager) : ViewModel(
 
                 override fun onFailure(call: Call<User>, t: Throwable) {
                     Log.d("Failure", t.toString())
-                    buttonState = ButtonUiState.Error
+                    logInButtonState = ButtonUiState.Error
                 }
             })
         }

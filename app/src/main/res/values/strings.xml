@@ -56,6 +56,8 @@
     <string name="sign_up">Зарегистрироваться</string>
     <string name="log_out_profile">Выйти из профиля</string>
     <string name="change_password">Изменить пароль</string>
+    <string name="sign_in_error">Неверный логин или пароль</string>
+    <string name="sign_up_error">Данный номер занят</string>
 
 
 </resources>

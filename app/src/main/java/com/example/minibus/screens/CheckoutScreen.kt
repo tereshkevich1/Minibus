@@ -39,6 +39,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.example.minibus.R
 import com.example.minibus.models.Details
+import com.example.minibus.snackbarClasses.SnackbarBottomPadding
 import com.example.minibus.snackbarClasses.SnackbarDelegate
 import com.example.minibus.snackbarClasses.SnackbarState
 import com.example.minibus.state_models.ButtonUiState
@@ -57,7 +58,7 @@ fun CheckoutScreen(
     navController: NavController,
     snackbarDelegate: SnackbarDelegate,
     tripId: Int,
-    ) {
+) {
 
     val checkoutViewModel: CheckoutViewModel =
         viewModel(factory = CheckoutViewModelFactory(tripId))
@@ -144,7 +145,9 @@ fun OrderPanel(
 
 
         Button(
-            onClick = { onOrderButtonClick() },
+            onClick = {
+                onOrderButtonClick()
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp)
@@ -154,7 +157,7 @@ fun OrderPanel(
             when (checkoutViewModel.buttonState) {
                 ButtonUiState.Defolt -> Text(text = stringResource(id = R.string.checkout))
                 ButtonUiState.Error -> {
-                    Text(text = "Error")
+                    Text(text = stringResource(id = R.string.checkout))
                 }
 
                 ButtonUiState.Loading -> {
@@ -169,32 +172,58 @@ fun OrderPanel(
             }
         }
 
+        when {
+            checkoutViewModel.showSnackbar -> ErrorCheckoutSnackbar(
+                snackbarDelegate,
+                checkoutViewModel.errorMessage,
+                checkoutViewModel.showSnackbar,
+                change = { checkoutViewModel.disableSnackbarState() })
+        }
+
     }
 
 }
 
 @Composable
+fun ErrorCheckoutSnackbar(
+    snackbarDelegate: SnackbarDelegate,
+    message: String,
+    buttonIsClicked: Boolean,
+    change: () -> Unit
+) {
+    LaunchedEffect(buttonIsClicked) {
+        Log.d("suka", buttonIsClicked.toString())
+        change()
+        snackbarDelegate.closeSnackbar()
+        snackbarDelegate.showSnackbar(
+            SnackbarState.ERROR,
+            message = message,
+            snackbarBottomPadding = SnackbarBottomPadding.DEFAULT
+        )
+    }
+}
+
+@Composable
 fun NavigateToUserHistory(navController: NavController, snackbarDelegate: SnackbarDelegate) {
-    Log.d("navControllerCS","${navController.graph.findStartDestination()}")
+    Log.d("navControllerCS", "${navController.graph.findStartDestination()}")
 
 
     val stringMessage = stringResource(id = R.string.success_order)
     LaunchedEffect(Unit) {
         snackbarDelegate.showSnackbar(
             SnackbarState.DEFAULT,
-            stringMessage
+            message = stringMessage,
+            snackbarBottomPadding = SnackbarBottomPadding.DEFAULT
         )
-            //navigate("Story")
+        //navigate("Story")
         navController.navigate("Story") {
-            popUpTo(navController.graph.id) {
-                inclusive = true
+            popUpTo("Search") { // ID вашего пункта навигации 'search'
+                inclusive = false // 'search' остается в стеке
             }
-            // Avoid multiple copies of the same destination when
-            // reselecting the same item
-            launchSingleTop = true
-            // Restore state when reselecting a previously selected item
-            restoreState = true
+            launchSingleTop = true // Избегаем множественных экземпляров 'story'
+            //restoreState = true // Восстанавливаем состояние, если это необходимо
         }
+
     }
 }
 

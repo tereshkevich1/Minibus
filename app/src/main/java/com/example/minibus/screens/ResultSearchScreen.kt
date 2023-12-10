@@ -37,6 +37,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.minibus.R
 import com.example.minibus.models.TripTime
+import com.example.minibus.snackbarClasses.SnackbarBottomPadding
 import com.example.minibus.snackbarClasses.SnackbarDelegate
 import com.example.minibus.snackbarClasses.SnackbarState
 import com.example.minibus.state_models.TicketUiState
@@ -60,8 +61,6 @@ fun ResultSearchScreen(
             uiState.value.departureDate.toString()
         )
     )
-
-    //  var isError by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -153,7 +152,8 @@ fun ErrorSnackbar(snackbarDelegate: SnackbarDelegate, disableIsError: () -> Unit
         snackbarDelegate.closeSnackbar()
         snackbarDelegate.showSnackbar(
             SnackbarState.ERROR,
-            "Места заняты, вас много"
+            message= "Места заняты, вас много",
+            snackbarBottomPadding = SnackbarBottomPadding.DEFAULT
         )
         disableIsError()
     }
@@ -252,11 +252,6 @@ fun StopsRow(departurePoint: String, title: String, changeStopPoint: () -> Unit)
             contentDescription = null
         )
     }
-
-}
-
-@Composable
-fun errorDialog() {
 
 }
 

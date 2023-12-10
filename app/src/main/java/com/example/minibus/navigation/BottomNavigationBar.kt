@@ -20,7 +20,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 
 @Composable
-public fun BottomNavigationBar(
+fun BottomNavigationBar(
     navController: NavHostController,
     items: List<BottomNavigationScreen>
 ) {
@@ -30,7 +30,6 @@ public fun BottomNavigationBar(
     ) {
         //
         val navBackStackEntry by navController.currentBackStackEntryAsState()
-        //достаем текущий экран
         val currentDestination = navBackStackEntry?.destination
         items.forEach { screen ->
             NavigationBarItem(
@@ -56,6 +55,7 @@ public fun BottomNavigationBar(
                         // Pop up to the start destination of the graph to
                         // avoid building up a large stack of destinations
                         // on the back stack as users select items
+                        Log.d("navControllerChSMAIN","${navController.graph.findStartDestination().id}")
                         popUpTo(navController.graph.findStartDestination().id) {
                             saveState = true
                         }

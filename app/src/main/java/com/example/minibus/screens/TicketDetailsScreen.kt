@@ -142,15 +142,16 @@ fun TicketDetailsPanel(
 
         when {
             openDialog.value -> {
-                ConfirmOrderCancelDialog(
+                ConfirmationDialog(
                     onDismissRequest = { openDialog.value = false },
                     onConfirmation = {
                         openDialog.value = false
                         ticketViewModel.deleteOrder(userTravelHistory.order.id)
-                        navController.navigate("history"){
-                            popUpTo(navController.graph.startDestinationId) {
+                        navController.navigate("Story") {
+                            popUpTo("Search") {
                                 inclusive = false
                             }
+                            launchSingleTop = true
                         }
 
                     },
@@ -164,7 +165,7 @@ fun TicketDetailsPanel(
 }
 
 @Composable
-fun ConfirmOrderCancelDialog(
+fun ConfirmationDialog(
     onDismissRequest: () -> Unit,
     onConfirmation: () -> Unit,
     dialogTitle: String,

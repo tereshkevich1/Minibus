@@ -22,12 +22,20 @@ class CheckoutViewModel(tripId: Int) : ViewModel() {
 
     var buttonState: ButtonUiState by mutableStateOf(Defolt)
 
+    var errorMessage by mutableStateOf("")
+
 
     init {
         viewModelScope.launch {
             orderDetailsObject = MinibusApi.retrofitService.getOrderDetails(tripId)
             isLoading = false
         }
+    }
+
+    var showSnackbar by mutableStateOf(false)
+
+    fun disableSnackbarState() {
+        showSnackbar = false
     }
 
     fun addOrder(
@@ -37,30 +45,39 @@ class CheckoutViewModel(tripId: Int) : ViewModel() {
         departureStopId: Int,
         arrivalStopId: Int
     ) {
-        Log.d("addOrderParameters"," TripId: $tripId,userId: $userId")
+        Log.d("addOrderParameters", " TripId: $tripId,userId: $userId")
         buttonState = ButtonUiState.Loading
-        viewModelScope.launch {
-            buttonState = try {
-                MinibusApi.retrofitService.addOrder(
-                    userId,
-                    tripId,
-                    numberTickets,
-                    1,
-                    departureStopId,
-                    arrivalStopId
-                )
-                ButtonUiState.Success
-            } catch (e: IOException) {
+        if (departureStopId == 0 || arrivalStopId == 0) {
+            buttonState = ButtonUiState.Error
+            errorMessage = "Выберите пункты посадки/высадки"
+            showSnackbar = true
+        } else {
+            viewModelScope.launch {
+                buttonState = try {
+                    MinibusApi.retrofitService.addOrder(
+                        userId,
+                        tripId,
+                        numberTickets,
+                        1,
+                        departureStopId,
+                        arrivalStopId
+                    )
+                    ButtonUiState.Success
 
-                Log.d("addOrder ERROR", "$e")
-                ButtonUiState.Error
+                } catch (e: IOException) {
+                    showSnackbar = true
+                    errorMessage = "чет то"
+                    Log.d("addOrder ERROR", "$e")
+                    ButtonUiState.Error
 
-            } catch (e: HttpException) {
-                Log.d("addOrder ERROR", "$e")
-                ButtonUiState.Error
+                } catch (e: HttpException) {
+                    showSnackbar = true
+                    errorMessage = "чет то"
+                    Log.d("addOrder ERROR", "$e")
+                    ButtonUiState.Error
 
+                }
             }
-
         }
     }
 

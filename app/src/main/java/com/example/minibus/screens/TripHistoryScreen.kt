@@ -2,7 +2,6 @@ package com.example.minibus.screens
 
 import android.net.Uri
 import android.util.Log
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -44,7 +43,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.rememberNavController
 import com.example.minibus.R
 import com.example.minibus.models.Time
@@ -61,19 +59,8 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun TripHistoryScreen(navController: NavController) {
 
-
     val historyViewModel: HistoryViewModel = viewModel()
     var firstButtonActive by rememberSaveable { mutableStateOf(true) }
-
-    BackHandler {
-        navController.navigate("Search"){
-            popUpTo(navController.graph.findStartDestination().id) {
-                saveState = true
-            }
-            launchSingleTop = true
-            restoreState = true
-        }
-    }
 
     Column {
         SwitchPanel(
@@ -94,13 +81,15 @@ fun TripHistoryScreen(navController: NavController) {
                 InformationLazyColumn(
                     (historyViewModel.tripHistoryUIState as TripHistoryUiState.Success<List<UserTravelHistory>>).futureTrips,
                     historyViewModel,
-                    navController
+                    navController,
+                    firstButtonActive
                 )
             } else {
                 InformationLazyColumn(
                     (historyViewModel.tripHistoryUIState as TripHistoryUiState.Success<List<UserTravelHistory>>).pastTrips,
                     historyViewModel,
-                    navController
+                    navController,
+                    firstButtonActive
                 )
             }
 
@@ -137,7 +126,8 @@ fun TripHistoryScreen(navController: NavController) {
 @Composable
 fun InformationLazyColumn(
     userTravelHistoryList: List<UserTravelHistory>,
-    historyViewModel: HistoryViewModel, navController: NavController
+    historyViewModel: HistoryViewModel, navController: NavController,
+    firstButtonActive: Boolean
 ) {
     LazyColumn(
         modifier = Modifier.padding(
@@ -160,11 +150,14 @@ fun InformationLazyColumn(
                 historyViewModel,
                 moreInfoClick =
                 {
+
                     Log.d("TripHistoryClick", "work!")
                     val json = Uri.encode(JsonFormat.instance.encodeToString(item))
                     Log.d("TripHistoryClick", "wo $json")
                     navController.navigate("detailsScreen/$json")
-                }
+
+                },
+                firstButtonActive
             )
         }
     }
@@ -176,15 +169,17 @@ fun CardTripInformation(
     departureCity: String, arrivalCity: String,
     time: Time, departurePoint: String, arrivalPoint: String,
     departureDate: LocalDate, price: Int, numberSeats: Int,
-    historyViewModel: HistoryViewModel, moreInfoClick: () -> Unit
+    historyViewModel: HistoryViewModel, moreInfoClick: () -> Unit,
+    firstButtonActive: Boolean
 ) {
+
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
             .height(170.dp)
             .padding(bottom = dimensionResource(id = R.dimen.padding_medium))
             .clip(MaterialTheme.shapes.medium)
-            .clickable { moreInfoClick() },
+            .then(if (firstButtonActive) Modifier.clickable { moreInfoClick() } else Modifier),
 
         ) {
         Column(

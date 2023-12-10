@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -51,9 +52,18 @@ fun RegistrationScreen(userViewModel: UserViewModel, navController: NavControlle
 
     val userState by userViewModel.userUiState.collectAsState()
 
+    var errorVisible by remember {
+        mutableStateOf(false)
+    }
+
     Column(
         modifier = Modifier
-            .padding(dimensionResource(id = R.dimen.padding_medium))
+            .padding(
+                start = dimensionResource(id = R.dimen.padding_medium),
+                end = dimensionResource(id = R.dimen.padding_medium),
+                bottom = dimensionResource(id = R.dimen.padding_medium),
+                top = dimensionResource(id = R.dimen.padding_extra_small)
+            )
             .fillMaxWidth()
     ) {
         InputField(
@@ -124,6 +134,9 @@ fun RegistrationScreen(userViewModel: UserViewModel, navController: NavControlle
             errorText = userViewModel.errorConfirmationPassword
         )
 
+        if (errorVisible) {
+            ErrorText(stringResource(id = R.string.sign_up_error))
+        }
         //ErrorPanel()
 
         Spacer(modifier = Modifier.weight(1f))
@@ -135,9 +148,13 @@ fun RegistrationScreen(userViewModel: UserViewModel, navController: NavControlle
                 .fillMaxWidth()
                 .height(56.dp)
         ) {
-            when (userViewModel.buttonState) {
+            when (userViewModel.registrationButtonState) {
                 ButtonUiState.Defolt -> Text(text = stringResource(R.string.create_account))
-                ButtonUiState.Error -> Text(text = "чето не то")
+                ButtonUiState.Error -> {
+                    Text(text = stringResource(R.string.create_account))
+                    errorVisible = true
+                }
+
                 ButtonUiState.Loading -> ButtonProgressIndicator()
                 ButtonUiState.Success -> {
                     Text(text = stringResource(R.string.create_account))
@@ -201,7 +218,7 @@ fun PasswordInputField(
             trailingIcon = {
                 val image = if (passwordVisible)
                     painterResource(R.drawable.outline_visibility_24)
-                else painterResource(R.drawable.baseline_remove_24)
+                else painterResource(R.drawable.outline_visibility_off_24)
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(painter = image, "")
                 }

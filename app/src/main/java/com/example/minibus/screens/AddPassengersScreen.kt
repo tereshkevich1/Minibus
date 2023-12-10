@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -54,7 +54,7 @@ fun AddPassengersScreen(viewModel: OrderViewModel, uiState: State<TicketUiState>
             )
 
             Spacer(modifier = Modifier.weight(1f))
-            ElevatedButton(
+            Button(
                 onClick = { navController.popBackStack() }, modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
