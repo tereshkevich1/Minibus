@@ -8,6 +8,9 @@
       <entry key="LoginScreenPreview">
         <State />
       </entry>
+      <entry key="PasswordChangeScreenPreview">
+        <State />
+      </entry>
       <entry key="RegistrationScreenDarkPreview">
         <State />
       </entry>
@@ -24,7 +27,7 @@
               </deviceKey>
             </Target>
           </runningDeviceTargetSelectedWithDropDown>
-          <timeTargetWasSelectedWithDropDown value="2023-12-10T03:14:40.391008800Z" />
+          <timeTargetWasSelectedWithDropDown value="2023-12-10T16:59:59.317071100Z" />
         </State>
       </entry>
     </value>

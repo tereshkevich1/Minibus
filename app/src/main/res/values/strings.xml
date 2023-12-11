@@ -58,6 +58,9 @@
     <string name="change_password">Изменить пароль</string>
     <string name="sign_in_error">Неверный логин или пароль</string>
     <string name="sign_up_error">Данный номер занят</string>
+    <string name="input_new_password">Введите новый пароль</string>
+    <string name="new_password">Новый пароль</string>
+    <string name="password_changed">Пароль изменен</string>
 
 
 </resources>

@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.minibus.models.UserTravelHistory
 import com.example.minibus.network.MinibusApi
@@ -14,25 +15,25 @@ import java.io.IOException
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 
-class HistoryViewModel : ViewModel() {
+class HistoryViewModel(userId: Int) : ViewModel() {
     var tripHistoryUIState by mutableStateOf<TripHistoryUiState<List<UserTravelHistory>>>(
         TripHistoryUiState.Loading
     )
 
     init {
-        loadUserTravelHistoryList()
+        loadUserTravelHistoryList(userId)
     }
 
-    fun loadUserTravelHistoryList() {
+    fun loadUserTravelHistoryList(userId: Int) {
         tripHistoryUIState = TripHistoryUiState.Loading
         viewModelScope.launch {
 
             tripHistoryUIState = try {
 
-                val tripsList =  MinibusApi.retrofitService.getUserTravelHistory(2)
+                val tripsList = MinibusApi.retrofitService.getUserTravelHistory(userId)
 
                 val futureTrips = tripsList.filter { it.order.status == 1 }
-                val pastTrips =  tripsList.filter { it.order.status == 2 }
+                val pastTrips = tripsList.filter { it.order.status == 2 }
 
                 TripHistoryUiState.Success(futureTrips, pastTrips)
 
@@ -64,4 +65,10 @@ class HistoryViewModel : ViewModel() {
 
         return "${hours}ч ${minutes}мин"
     }
+}
+
+class HistoryViewModelFactory(private val userId: Int) : ViewModelProvider.NewInstanceFactory() {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T =
+        HistoryViewModel(userId) as T
+
 }

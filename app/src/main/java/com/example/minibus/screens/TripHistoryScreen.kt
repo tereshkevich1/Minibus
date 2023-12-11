@@ -50,6 +50,7 @@ import com.example.minibus.models.UserTravelHistory
 import com.example.minibus.network.JsonFormat
 import com.example.minibus.ui.theme.MinibusTheme
 import com.example.minibus.vm.HistoryViewModel
+import com.example.minibus.vm.HistoryViewModelFactory
 import com.example.minibus.vm.TripHistoryUiState
 import kotlinx.serialization.encodeToString
 import java.time.LocalDate
@@ -57,9 +58,9 @@ import java.time.format.DateTimeFormatter
 
 
 @Composable
-fun TripHistoryScreen(navController: NavController) {
+fun TripHistoryScreen(navController: NavController, userId: Int) {
 
-    val historyViewModel: HistoryViewModel = viewModel()
+    val historyViewModel: HistoryViewModel = viewModel(factory = HistoryViewModelFactory(userId))
     var firstButtonActive by rememberSaveable { mutableStateOf(true) }
 
     Column {
@@ -114,7 +115,7 @@ fun TripHistoryScreen(navController: NavController) {
                                 end = dimensionResource(id = R.dimen.padding_medium)
                             ),
                         (historyViewModel.tripHistoryUIState as TripHistoryUiState.Error).exception,
-                        tryAgainClick = { historyViewModel.loadUserTravelHistoryList() }
+                        tryAgainClick = { historyViewModel.loadUserTravelHistoryList(userId) }
                     )
                 }
             }
@@ -346,7 +347,7 @@ fun TripHistoryScreenDarkPreview() {
 
     MinibusTheme(useDarkTheme = true) {
         androidx.compose.material3.Surface(modifier = Modifier.fillMaxSize()) {
-            TripHistoryScreen(navController)
+            TripHistoryScreen(navController,2)
         }
 
     }
@@ -359,7 +360,7 @@ fun TripHistoryScreenLightPreview() {
     val navController = rememberNavController()
     MinibusTheme(useDarkTheme = false) {
         androidx.compose.material3.Surface(modifier = Modifier.fillMaxSize()) {
-            TripHistoryScreen(navController)
+            TripHistoryScreen(navController,2)
         }
     }
 }

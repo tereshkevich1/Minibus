@@ -110,7 +110,7 @@ fun PersonalInformationScreen(userViewModel: UserViewModel, navController: NavHo
                 .fillMaxWidth()
                 .padding(top = dimensionResource(id = R.dimen.padding_extra_small))
         ) {
-            LogOutProfilePanel(stringResource(R.string.change_password), onClick = {})
+            LogOutProfilePanel(stringResource(R.string.change_password), onClick = {navController.navigate("changePasswordScreen")})
             Spacer(modifier = Modifier.weight(1f))
             LogOutProfilePanel(
                 stringResource(R.string.log_out_profile),
@@ -153,18 +153,20 @@ fun PersonalInformationScreen(userViewModel: UserViewModel, navController: NavHo
                 ConfirmationDialog(
                     onDismissRequest = { openDialog.value = false },
                     onConfirmation = {
-                        userViewModel.clearFields()
+                        openDialog.value = false
                         userViewModel.clearUserData{
+                            userViewModel.clearFields()
                             navController.navigate("logInScreen") {
-                                popUpTo("Search") {
-                                    inclusive = false
+                                popUpTo(navController.graph.id) {
+                                    inclusive = true
                                 }
                                 launchSingleTop = true
                             }
                         }
                     },
                     dialogTitle = "Выход из аккаунта",
-                    dialogText = "Вы действительно хотите выйти из аккаунта?"
+                    dialogText = "Вы действительно хотите выйти из аккаунта?",
+                    confirmationText = "Выйти"
                 )
             }
 

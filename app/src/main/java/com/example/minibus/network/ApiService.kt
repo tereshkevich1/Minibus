@@ -27,11 +27,8 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 private const val BASE_URL =
-    "http://192.168.43.84:8080"
+    "http://192.168.100.2:8080"
 
-/**
- * Use the Retrofit builder to build a retrofit object using a kotlinx.serialization converter
- */
 private val jsonFormat = Json {
     serializersModule = SerializersModule {
         contextual(LocalDate::class, LocalDateSerializer)
@@ -44,9 +41,6 @@ private val retrofit = Retrofit.Builder()
     .baseUrl(BASE_URL)
     .build()
 
-/**
- * Retrofit service object for creating api calls
- */
 interface MinibusApiService {
     @GET("city")
     suspend fun getPhotos(): List<City>
@@ -120,6 +114,12 @@ interface MinibusApiService {
         @Path("phoneNumber") phoneNumber: String,
         @Path("password") password: String
     ): Call<User>
+
+    @POST("user/{id}/{password}/changePassword")
+    suspend fun changePassword(
+        @Path("id") id: Int,
+        @Path("password") password: String,
+    ): Response<Void>
 
 }
 

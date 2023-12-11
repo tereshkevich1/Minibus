@@ -37,6 +37,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.minibus.R
 import com.example.minibus.screens.LoadingScreen
 import com.example.minibus.screens.LoginScreen
+import com.example.minibus.screens.PasswordChangeScreen
 import com.example.minibus.screens.PersonalInformationScreen
 import com.example.minibus.screens.ProfileSetupScreen
 import com.example.minibus.screens.RegistrationScreen
@@ -63,6 +64,7 @@ fun MainScreen(userViewModel: UserViewModel) {
 
     var startDestination by remember { mutableStateOf("loadingScreen") }
     var isLoading by remember { mutableStateOf(true) }
+
     LaunchedEffect(key1 = Unit) {
         delay(1000)
         isLoading = false
@@ -80,11 +82,25 @@ fun MainScreen(userViewModel: UserViewModel) {
     }
 
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
-    fun showTopBar() =!isLoading &&
-            !((currentRoute == BottomNavigationScreen.RouteConfigurationScreen.route) || (currentRoute == "logInScreen") || (currentRoute == "loadingScreen"))
 
-    fun showBottomBar() =!isLoading &&
-            !((currentRoute == "signUpScreen") || (currentRoute == "logInScreen") || (currentRoute == "addPassengers") || (currentRoute == "loadingScreen"))
+    val noTopBarRoutes = remember {
+        setOf(
+            BottomNavigationScreen.RouteConfigurationScreen.route,
+            "logInScreen",
+            "loadingScreen"
+        )
+    }
+    val noBottomBarRoutes = remember {
+        setOf(
+            "signUpScreen",
+            "logInScreen",
+            "addPassengers",
+            "loadingScreen"
+        )
+    }
+
+    fun showTopBar() = !isLoading && currentRoute !in noTopBarRoutes
+    fun showBottomBar() = !isLoading && currentRoute !in noBottomBarRoutes
 
     val topBarTitle = getTitleForRoute(currentRoute, uiState)
     val showTopBarBackIcon = items.any { it.route == currentRoute }
@@ -175,6 +191,7 @@ fun getTitleForRoute(route: String?, uiState: State<TicketUiState>): String {
         "selectionArrivalPoint" -> "${uiState.value.arrivalCity} - место высадки"
         "selectionArrival" -> "Город прибытия"
         "selectionDeparture" -> "Город отправления"
+        "signUpScreen" -> "Регистрация"
         else -> "Minibus"
     }
 }
@@ -191,7 +208,6 @@ private fun NavigationConfigurations(
     startDestination: String
 
 ) {
-    // Log.d("authorizationCheck", userViewModel.authorizationCheck().toString())
     NavHost(
         navController,
         startDestination = startDestination,
@@ -199,7 +215,7 @@ private fun NavigationConfigurations(
     ) {
 
         routeConfigurationGraph(navController, viewModel, uiState, snackbarDelegate, userViewModel)
-        historyGraph(navController, viewModel, uiState)
+        historyGraph(navController, userViewModel.userUiState.value.userId)
         composable(BottomNavigationScreen.ContactsScreen.route) {
 
             ProfileSetupScreen(navController)
@@ -220,6 +236,13 @@ private fun NavigationConfigurations(
         }
         composable("loadingScreen") {
             LoadingScreen()
+        }
+        composable("changePasswordScreen") {
+            PasswordChangeScreen(
+                userViewModel.userUiState.collectAsState().value.userId,
+                navController,
+                snackbarDelegate
+            )
         }
     }
 }

@@ -156,7 +156,8 @@ fun TicketDetailsPanel(
 
                     },
                     dialogText = stringResource(R.string.cancel_order_ask),
-                    dialogTitle = stringResource(R.string.cancel_order_alert_dialog)
+                    dialogTitle = stringResource(R.string.cancel_order_alert_dialog),
+                    confirmationText = stringResource(id = R.string.cancel_order)
                 )
             }
         }
@@ -169,7 +170,8 @@ fun ConfirmationDialog(
     onDismissRequest: () -> Unit,
     onConfirmation: () -> Unit,
     dialogTitle: String,
-    dialogText: String
+    dialogText: String,
+    confirmationText: String
 ) {
     AlertDialog(
         shape = RoundedCornerShape(10.dp),
@@ -177,7 +179,7 @@ fun ConfirmationDialog(
         confirmButton = {
             TextButton(onClick = { onConfirmation() }) {
                 Text(
-                    text = stringResource(id = R.string.cancel_order),
+                    text = confirmationText,
                     color = MaterialTheme.colorScheme.error
                 )
             }

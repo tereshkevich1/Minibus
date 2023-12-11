@@ -2,7 +2,6 @@ package com.example.minibus.navigation
 
 import android.net.Uri
 import android.util.Log
-import androidx.compose.runtime.State
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
@@ -11,13 +10,10 @@ import com.example.minibus.models.UserTravelHistory
 import com.example.minibus.network.JsonFormat
 import com.example.minibus.screens.TicketDetailsScreen
 import com.example.minibus.screens.TripHistoryScreen
-import com.example.minibus.state_models.TicketUiState
-import com.example.minibus.vm.OrderViewModel
 
 fun NavGraphBuilder.historyGraph(
     navController: NavController,
-    viewModel: OrderViewModel,
-    uiState: State<TicketUiState>,
+    userId: Int,
 ) {
 
     navigation(
@@ -27,7 +23,7 @@ fun NavGraphBuilder.historyGraph(
 
         composable(BottomNavigationScreen.TravelHistoryScreen.route) {
 
-            TripHistoryScreen(navController)
+            TripHistoryScreen(navController,userId)
         }
         composable("detailsScreen/{userTravelHistoryJson}") { backStackEntry ->
 
