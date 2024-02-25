@@ -19,7 +19,7 @@ Jetpack Compose, MVVM, Kotlin Flow, Retrofit2
 <img src="https://imgur.com/T8OGPdd.png" alt="Выбор места посадки/высадки" width="25%" height="25%">
 
 ### Оформление заказа
-<img src="https://imgur.com/undefined.png" alt="Оформление заказа" width="25%" height="25%">
+<img src="https://imgur.com/XxPaNdw.png" alt="Оформление заказа" width="25%" height="25%">
 
 ### Архив и будущие поездки
 <img src="https://imgur.com/nShfSy6.png" alt="Архив и будущие поездки" width="25%" height="25%">
