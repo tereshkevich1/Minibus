@@ -4,28 +4,28 @@
 Jetpack Compose, MVVM, Kotlin Flow, Retrofit2 
 
 ### Главный экран
-![](https://imgur.com/aK8Upv6.png) {: width="50%" height="50%"}
+<img src="https://imgur.com/aK8Upv6.png" alt="Главный экран" width="25%" height="25%">
 
 ### Выбор даты отправления
-![](https://imgur.com/AxB0UM2.png){: width="50%" height="50%"}
+<img src="https://imgur.com/AxB0UM2.png" alt="Выбор даты отправления" width="25%" height="25%">
 
 ### Изменение количества пассажиров
-![](https://imgur.com/eK43TLj.png){: width="50%" height="50%"}
+<img src="https://imgur.com/eK43TLj.png" alt="Изменение количества пассажиров" width="25%" height="25%">
 
 ### Результаты поиска
-![](https://imgur.com/TrSQzN6.png){: width="50%" height="50%"}
+<img src="https://imgur.com/TrSQzN6.png" alt="Результаты поиска" width="25%" height="25%">
 
 ### Выбор места посадки/высадки
-![](https://imgur.com/T8OGPdd.png){: width="50%" height="50%"}
+<img src="https://imgur.com/T8OGPdd.png" alt="Выбор места посадки/высадки" width="25%" height="25%">
 
 ### Архив и будущие поездки
-![](https://imgur.com/nShfSy6.png){: width="50%" height="50%"}
+<img src="https://imgur.com/nShfSy6.png" alt="Архив и будущие поездки" width="25%" height="25%">
 
 ## Светлая тема
 
 ### Настройки профиля
-![](https://imgur.com/KitVbX8.png){: width="50%" height="50%"}
+<img src="https://imgur.com/KitVbX8.png" alt="Настройки профиля" width="25%" height="25%">
 
 ### Вход
-![](https://imgur.com/nJOxdRn.png){: width="50%" height="50%"}
+<img src="https://imgur.com/nJOxdRn.png" alt="Вход" width="25%" height="25%">
 
